@@ -1,0 +1,74 @@
+[
+  {
+    "id": "pmjay_01",
+    "title": "Ayushman Bharat PM-JAY: Health Cover & Eligibility",
+    "content": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (PM-JAY) provides a health cover of Rs 5 Lakh per family per year for secondary and tertiary hospitalisation care across empanelled public and private hospitals in India. There is no cap on family size or age. Eligibility is based on SECC 2011 deprivation criteria (rural and urban) or senior citizens aged 70+ (under expanded 2024-2026 guidelines). No enrollment fee is required; eligible beneficiaries can make their Ayushman Golden Card via pmjay.gov.in, the Ayushman App, or at any empanelled hospital (Ayushman Mitra desk).",
+    "source_url_or_file": "National Health Authority (nha.gov.in / pmjay.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-09-15",
+    "metadata": {"category": "healthcare", "topic": "ayushman_bharat"}
+  },
+  {
+    "id": "pmjay_02",
+    "title": "Ayushman Bharat: Hospital Cashless Treatment & Grievance Redressal",
+    "content": "All treatments under PM-JAY are completely cashless and paperless for eligible cardholders. The hospital cannot charge any cash for medicines, diagnostics, or surgery covered in package rates. In case of illegal demand of money or refusal of treatment by an empanelled hospital: 1) Contact the hospital's on-site Ayushman Mitra or Nodal Officer. 2) Call National Toll-Free Helpline 14555 or 1800-111-565. 3) File online grievance on Central Grievance Redressal Management System (CGRMS) at cgrms.pmjay.gov.in.",
+    "source_url_or_file": "NHA Operational Guidelines on Beneficiary Rights",
+    "authority_level": "official_government",
+    "last_updated": "2026-08-20",
+    "metadata": {"category": "healthcare", "topic": "pmjay_complaint"}
+  },
+  {
+    "id": "epfo_01",
+    "title": "EPFO: Online PF Advance & Withdrawal Rules (Form 31, 19, 10C)",
+    "content": "EPFO members can withdraw Provident Fund (PF) balance online through the Unified Member Portal (epfindia.gov.in) using UAN and password. Types of Claims: 1) Form 31 (PF Advance/Partial Withdrawal): Allowed for illness (immediate, no minimum service required), marriage/education (7 years service), house purchase/construction (5 years service). 2) Form 19 (Final PF Settlement): Allowed only after 2 months of leaving employment (or immediate on retirement). 3) Form 10C (Pension Withdrawal Benefit): If total service is less than 9.5 years. Prerequisites: Aadhaar linked with UAN, Bank account with IFSC seeded and approved by employer, active mobile for OTP.",
+    "source_url_or_file": "Employees' Provident Fund Organisation (epfindia.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-09-05",
+    "metadata": {"category": "social_security", "topic": "epfo_pf"}
+  },
+  {
+    "id": "epfo_02",
+    "title": "EPFO: Claim Rejection Reasons & EPFiGMS Grievance Portal",
+    "content": "Common reasons for EPFO claim rejection: 1) Name/Father's name/DOB mismatch between Aadhaar and Member Profile (fix via Joint Declaration form online). 2) Bank account number or IFSC mismatch or unreadable cancelled cheque upload. 3) Date of Exit not marked by previous employer (can now be marked by employee online after 2 months of leaving). To file a grievance for delayed PF claim or employer non-cooperation: Register complaint on EPFiGMS (epfigms.gov.in). Resolution SLA is 15-20 days.",
+    "source_url_or_file": "EPFO Citizen Charter & EPFiGMS Manual",
+    "authority_level": "official_government",
+    "last_updated": "2026-09-12",
+    "metadata": {"category": "social_security", "topic": "epfo_grievance"}
+  },
+  {
+    "id": "cyber_01",
+    "title": "Cyber Financial Fraud: Golden Hours Helpline 1930 & Reporting",
+    "content": "If money is fraudulently debited from your bank account, UPI (Google Pay, PhonePe, Paytm), or credit card: Step 1: Immediately call the National Cyber Crime Helpline at 1930 (operated by I4C, Ministry of Home Affairs). Reporting within the 'Golden Hour' (first 2-3 hours) allows police and banks to freeze the money in transit before the scammer withdraws it. Step 2: Register formal cyber complaint with transaction IDs, screenshots, and bank SMS on cybercrime.gov.in. Step 3: Inform your bank within 3 days (under RBI Zero Liability guidelines) to secure zero liability protection.",
+    "source_url_or_file": "Indian Cyber Crime Coordination Centre (I4C - cybercrime.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-10-02",
+    "metadata": {"category": "cyber_security", "topic": "fraud_helpline_1930"}
+  },
+  {
+    "id": "ration_01",
+    "title": "One Nation One Ration Card (ONORC) & NFSA Food Grain Entitlements",
+    "content": "Under the National Food Security Act (NFSA) and One Nation One Ration Card (ONORC) scheme, eligible beneficiaries (Antyodaya Anna Yojana - AAY and Priority Household - PHH) can collect their entitled free food grains from ANY Fair Price Shop (ration shop) across India using biometric Aadhaar authentication. AAY households receive 35 kg per family per month, and PHH beneficiaries receive 5 kg per person per month. Migrant workers do not need to cancel their home state ration card to get ration in other cities. Toll-Free PDS Helpline: 1967 or state food helpline.",
+    "source_url_or_file": "Department of Food & Public Distribution (nfsa.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-08-10",
+    "metadata": {"category": "food_security", "topic": "ration_card_onorc"}
+  },
+  {
+    "id": "sarathi_01",
+    "title": "Driving Licence & Learner Licence (Sarathi Parivahan) Online Process",
+    "content": "Under MoRTH contactless citizen services on sarathi.parivahan.gov.in: 1) Learner Licence (LL): Can be applied and tested online from home using Aadhaar authentication (no RTO visit required in most states). Valid for 6 months. 2) Permanent Driving Licence (DL): Can be applied after 30 days of LL issuance and requires booking a physical driving skill test slot at RTO. 3) Address change, renewal, duplicate DL, and NOC can be done completely online with Aadhaar OTP.",
+    "source_url_or_file": "Ministry of Road Transport & Highways (sarathi.parivahan.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-07-25",
+    "metadata": {"category": "transport", "topic": "driving_licence"}
+  },
+  {
+    "id": "rti_01",
+    "title": "Right to Information (RTI) Act 2005: Filing Online Application",
+    "content": "Under the Right to Information Act 2005, every Indian citizen has the right to request information from Public Authorities (Central & State govt departments, PSUs, public universities). Application Fee: Rs 10 (free for BPL cardholders). Central Govt RTIs can be filed online at rtionline.gov.in. Time limit for response: 30 days (48 hours if it concerns life or liberty). If no reply is received or information is denied, a First Appeal can be filed within 30 days with the First Appellate Authority (FAA) of that department.",
+    "source_url_or_file": "Department of Personnel and Training (DoPT / rtionline.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-06-30",
+    "metadata": {"category": "citizen_rights", "topic": "rti"}
+  }
+]

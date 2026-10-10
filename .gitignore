@@ -1,0 +1,21 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Training artifacts and checkpoints
+training/saathi_lora_adapter/
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+
+# Logs and system data
+*.log
+.env
+.DS_Store
+*.db
+*.sqlite
+data/*.db
