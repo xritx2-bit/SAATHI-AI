@@ -1,6 +1,6 @@
 """
-SAATHI AI — Next-Generation Public Assistance Portal & Research Hub
-A modern, premium web interface for evidence-gated, safe, multilingual citizen guidance.
+SAATHI AI — Next-Generation Evidence-Gated Public Assistance Portal
+A modern, ultra-clean, and interactive web interface for safe, multilingual citizen guidance.
 """
 import streamlit as st
 import os
@@ -25,8 +25,6 @@ from saathi.llm.local_model import LocalFineTunedModel
 from saathi.tools.scheme_finder import WelfareSchemeFinder, CitizenProfile
 from saathi.knowledge.ocr_parser import BillOCRScanner
 
-
-
 # Streamlit Page Config
 st.set_page_config(
     page_title="SAATHI AI (साथी) — India's Verified Daily Life Assistant",
@@ -35,124 +33,238 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Comprehensive Modern Web Styling (Google Fonts, Glassmorphism, Premium Cards)
+# Comprehensive Modern Web Styling (Google Fonts, Glassmorphism, Premium Micro-Animations)
 st.markdown("""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-    /* Global Typography */
+    /* Global Typography & Variables */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #0284C7 100%);
+        --surface-glass: rgba(255, 255, 255, 0.85);
+        --border-glass: rgba(226, 232, 240, 0.8);
+        --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+        --card-shadow-hover: 0 12px 28px -4px rgba(37, 99, 235, 0.12), 0 6px 12px -2px rgba(15, 23, 42, 0.08);
+    }
+    
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
     /* Top Hero Banner */
     .hero-container {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F3E6D 100%);
-        border-radius: 16px;
-        padding: 32px 36px;
+        background: linear-gradient(135deg, #091E42 0%, #0F2B5C 40%, #1E3A8A 75%, #0284C7 100%);
+        border-radius: 20px;
+        padding: 36px 40px;
         color: white;
-        margin-bottom: 24px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25), 0 8px 10px -6px rgba(15, 23, 42, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 28px;
+        box-shadow: 0 20px 40px -10px rgba(15, 35, 80, 0.35), 0 1px 3px 0 rgba(255, 255, 255, 0.1) inset;
+        border: 1px solid rgba(255, 255, 255, 0.12);
         position: relative;
         overflow: hidden;
     }
+    .hero-container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
+        pointer-events: none;
+    }
     .hero-title {
         font-family: 'Outfit', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        background: linear-gradient(90deg, #FFFFFF 0%, #93C5FD 50%, #FBBF24 100%);
+        font-size: 2.6rem;
+        font-weight: 900;
+        letter-spacing: -0.025em;
+        background: linear-gradient(90deg, #FFFFFF 0%, #BAE6FD 50%, #FDE047 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
     .hero-subtitle {
         font-size: 1.05rem;
-        color: #CBD5E1;
-        max-width: 800px;
-        line-height: 1.6;
-        margin-bottom: 18px;
+        color: #E2E8F0;
+        max-width: 820px;
+        line-height: 1.65;
+        margin-bottom: 22px;
     }
     .hero-stats-row {
         display: flex;
-        gap: 16px;
+        gap: 12px;
         flex-wrap: wrap;
     }
     .hero-stat-pill {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 6px 14px;
+        padding: 7px 16px;
         background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
         border-radius: 9999px;
-        font-size: 0.82rem;
+        font-size: 0.84rem;
         font-weight: 600;
         color: #F8FAFC;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .hero-stat-pill:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.14);
     }
     
+    /* Interactive Card Base */
+    .saathi-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 20px;
+    }
+    .saathi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--card-shadow-hover);
+        border-color: #CBD5E1;
+    }
+
+    /* Quick Topic Scenario Cards */
+    .scenario-pill-card {
+        background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
+        border: 1px solid #E2E8F0;
+        border-radius: 14px;
+        padding: 16px 18px;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 100%;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    }
+    .scenario-pill-card:hover {
+        background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
+        border-color: #93C5FD;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.12);
+    }
+    .scenario-title {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0F172A;
+        margin-bottom: 4px;
+    }
+    .scenario-desc {
+        font-size: 0.78rem;
+        color: #64748B;
+        line-height: 1.4;
+    }
+
     /* Policy Badges */
     .policy-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 12px;
+        padding: 5px 14px;
         border-radius: 9999px;
         font-size: 0.8rem;
         font-weight: 700;
         letter-spacing: 0.02em;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
-    .pill-rag { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
-    .pill-clarify { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
-    .pill-action { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
-    .pill-escalate { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
-    .pill-direct { background: #EEF2FF; color: #4338CA; border: 1px solid #C7D2FE; }
+    .pill-rag { background: #ECFDF5; color: #047857; border: 1px solid #6EE7B7; }
+    .pill-clarify { background: #FFFBEB; color: #B45309; border: 1px solid #FCD34D; }
+    .pill-action { background: #FFF7ED; color: #C2410C; border: 1px solid #FDBA74; }
+    .pill-escalate { background: #FEF2F2; color: #B91C1C; border: 1px solid #FCA5A5; }
+    .pill-direct { background: #EEF2FF; color: #4338CA; border: 1px solid #A5B4FC; }
 
     /* Action Proposal Card */
     .action-draft-card {
-        background: linear-gradient(180deg, #FFFDF5 0%, #FEFCE8 100%);
+        background: linear-gradient(180deg, #FFFDF7 0%, #FEF9C3 100%);
         border: 2px solid #F59E0B;
-        border-radius: 12px;
-        padding: 20px;
-        margin: 16px 0;
-        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+        border-radius: 14px;
+        padding: 22px;
+        margin: 18px 0;
+        box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.15);
     }
     
     /* Calculator Container */
     .calc-container {
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
+        border-radius: 16px;
+        padding: 26px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 24px;
     }
     
     /* Metric Boxes */
     .metric-box {
         background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
         border: 1px solid #E2E8F0;
-        border-radius: 12px;
-        padding: 18px;
+        border-radius: 14px;
+        padding: 20px;
         text-align: center;
+        transition: transform 0.2s ease;
+    }
+    .metric-box:hover {
+        transform: translateY(-2px);
+        border-color: #CBD5E1;
     }
     .metric-val {
         font-family: 'Outfit', sans-serif;
-        font-size: 1.8rem;
+        font-size: 1.85rem;
         font-weight: 800;
         color: #0F172A;
     }
     .metric-label {
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         color: #64748B;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+    }
+
+    /* Status Dot Pulsing */
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #10B981;
+        display: inline-block;
+        box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Custom Scrollbar for Streamlit elements */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: #94A3B8;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -177,14 +289,16 @@ if "current_session_id" not in st.session_state:
     st.session_state.current_session_id = first_sess_id
 
 # ==========================================
-# SIDEBAR: USER AUTH & CHATGPT-STYLE SESSIONS
+# SIDEBAR: USER AUTH & CHAT SESSIONS
 # ==========================================
 st.sidebar.markdown("""
-<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-    <div style="font-size: 1.8rem;">🤝</div>
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0;">
+    <div style="font-size: 2rem; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: white;">🤝</div>
     <div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #0F172A;">SAATHI AI</div>
-        <div style="font-size: 0.75rem; color: #0284C7; font-weight: 600;">साथी • Evidence-Gated Assistant</div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #0F172A; line-height: 1.1;">SAATHI AI</div>
+        <div style="font-size: 0.74rem; color: #0284C7; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+            <span class="pulse-dot"></span> Evidence-Gated Assistant
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -192,8 +306,8 @@ st.sidebar.markdown("""
 # User Account Card
 user = st.session_state.current_user
 st.sidebar.markdown(f"""
-<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px;">
-    <div style="font-weight: 700; font-size: 0.9rem; color: #1E293B;">👤 {user.get('display_name', 'Citizen User')}</div>
+<div style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
+    <div style="font-weight: 700; font-size: 0.92rem; color: #1E293B;">👤 {user.get('display_name', 'Citizen User')}</div>
     <div style="font-size: 0.78rem; color: #64748B;">{user.get('email', '')}</div>
 </div>
 """, unsafe_allow_html=True)
@@ -216,7 +330,7 @@ with st.sidebar.expander("🔑 Firebase Account & Login"):
                     else:
                         st.error(err)
         with c2:
-            if st.button("🌐 Google Login", key="btn_google", use_container_width=True):
+            if st.button("🌐 Google", key="btn_google", use_container_width=True):
                 ok, udata, err = st.session_state.auth_service.sign_in_with_google_id_token("mock_google_id_token")
                 if ok:
                     u_profile = st.session_state.db.create_or_get_user(udata["localId"], udata["email"], udata.get("displayName", "Google Citizen"), "google")
@@ -238,8 +352,6 @@ with st.sidebar.expander("🔑 Firebase Account & Login"):
                     st.rerun()
                 else:
                     st.error(err)
-
-st.sidebar.divider()
 
 # New Chat Button
 if st.sidebar.button("➕ New Chat Session", type="primary", use_container_width=True):
@@ -319,7 +431,9 @@ else:
 # ==========================================
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">SAATHI AI • साथी</div>
+    <div class="hero-title">
+        <span>SAATHI AI • साथी</span>
+    </div>
     <div class="hero-subtitle">
         India's first Evidence-Gated, Multilingual Public Assistant. Grounded in official government regulations, transparent utility calculators, and strict zero-unauthorized-action safety gates.
     </div>
@@ -327,7 +441,8 @@ st.markdown("""
         <div class="hero-stat-pill">⚡ 92.0% Policy Reliability</div>
         <div class="hero-stat-pill">🛡️ 100% Red-Team Safety Pass</div>
         <div class="hero-stat-pill">🌍 Hindi • Hinglish • English Parity (100%)</div>
-        <div class="hero-stat-pill">🏥 6 Core Public Domains Indexed</div>
+        <div class="hero-stat-pill">🏛️ 9+ Central & State Schemes</div>
+        <div class="hero-stat-pill">🖨️ QR Verified PDF Output</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -336,13 +451,13 @@ st.markdown("""
 # TAB 1: AI ASSISTANT & CHAT
 # ==========================================
 if mode == "💬 AI Assistant & Chat":
-    st.markdown("### 💡 Quick Topics & Everyday Scenarios")
+    st.markdown("### 💡 Quick Topics & Everyday Citizen Scenarios")
     q_col1, q_col2, q_col3, q_col4 = st.columns(4)
     with q_col1:
         if st.button("⚡ Electricity Bill Dispute\n(High Slab / Faulty Meter)", key="q_elec", use_container_width=True):
             st.session_state.selected_quick_prompt = "Mera bijli ka bill bahut jyada aaya hai meter kharab lagta hai kya karu?"
     with q_col2:
-        if st.button("🌾 PM-KISAN 2,000 Installment\n(eKYC & Land Seeding Fix)", key="q_kisan", use_container_width=True):
+        if st.button("🌾 PM-KISAN ₹2,000 Installment\n(eKYC & Land Seeding Fix)", key="q_kisan", use_container_width=True):
             st.session_state.selected_quick_prompt = "PM kisan ka 2000 rupaye nahi aaya land seeding NO dikha raha hai kaise theek karein?"
     with q_col3:
         if st.button("🛡️ Cyber Fraud 1930\n(Golden Hour Money Freeze)", key="q_cyber", use_container_width=True):
@@ -449,8 +564,8 @@ if mode == "💬 AI Assistant & Chat":
                 st.markdown(f"""
                 <div class="action-draft-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <h4 style="color: #92400E; margin: 0;">📝 Prepared Action Draft: {title}</h4>
-                        <span style="background: #FDE68A; color: #92400E; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">REQUIRES USER APPROVAL</span>
+                        <h4 style="color: #92400E; margin: 0; font-family: 'Outfit', sans-serif;">📝 Prepared Action Draft: {title}</h4>
+                        <span style="background: #FDE68A; color: #92400E; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">REQUIRES USER APPROVAL</span>
                     </div>
                     <p style="color: #B45309; font-size: 0.88rem; margin-bottom: 12px;">{warning}</p>
                 </div>
@@ -493,7 +608,6 @@ if mode == "💬 AI Assistant & Chat":
             st.session_state.db.update_session_title(st.session_state.current_session_id, prompt_input[:26])
 
         with st.spinner("Analyzing intent, verifying official evidence & applying safety policies..."):
-            # Passes current conversation history and active intelligence engine
             decision_result = st.session_state.controller.process_query(
                 prompt_input,
                 current_session_messages,
@@ -519,6 +633,7 @@ elif mode == "🎯 Scheme Eligibility Wizard":
 
     w_col1, w_col2 = st.columns([1, 1])
     with w_col1:
+        st.markdown('<div class="saathi-card">', unsafe_allow_html=True)
         st.subheader("👤 Citizen Demographic Profile")
         w_state = st.selectbox("State of Residence / राज्य:", ["All India", "Delhi", "Maharashtra", "Uttar Pradesh", "Bihar", "Madhya Pradesh", "Rajasthan", "Karnataka", "West Bengal", "Tamil Nadu", "Gujarat", "Punjab", "Haryana"])
         w_age = st.slider("Citizen Age (Years) / उम्र:", min_value=1, max_value=90, value=38)
@@ -546,11 +661,13 @@ elif mode == "🎯 Scheme Eligibility Wizard":
             girl_child_age=6 if w_girl else None,
             is_differently_abled=w_diff
         )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with w_col2:
         matched_schemes = WelfareSchemeFinder.match_schemes_for_citizen(profile)
         eligible_schemes = [s for s in matched_schemes if s.is_eligible]
         
+        st.markdown('<div class="saathi-card">', unsafe_allow_html=True)
         st.subheader("🏆 Your Eligibility Summary")
         m_col1, m_col2 = st.columns(2)
         m_col1.markdown(f"""
@@ -562,12 +679,13 @@ elif mode == "🎯 Scheme Eligibility Wizard":
         m_col2.markdown(f"""
         <div class="metric-box">
             <div class="metric-label">Profile Fit Rating</div>
-            <div class="metric-val" style="color: #0284C7;">{int((len(eligible_schemes)/len(matched_schemes))*100)}%</div>
+            <div class="metric-val" style="color: #0284C7;">{int((len(eligible_schemes)/max(len(matched_schemes),1))*100)}%</div>
         </div>
         """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        st.write("Click on any scheme below to view exact benefits, required documents, and one-click application checklists:")
+        st.write("Click on any scheme below to view exact benefits, required documents, and one-click application checklists.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<hr style='margin: 20px 0;'>", unsafe_allow_html=True)
 
@@ -596,7 +714,7 @@ elif mode == "🎯 Scheme Eligibility Wizard":
 
             c_btn1, c_btn2 = st.columns([1, 3])
             with c_btn1:
-                st.markdown(f'<a href="{sch.portal_url}" target="_blank" style="background: #2563EB; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">🌐 Official Portal</a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{sch.portal_url}" target="_blank" style="background: #2563EB; color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">🌐 Official Portal</a>', unsafe_allow_html=True)
             with c_btn2:
                 if st.button(f"Draft Application Checklist for {sch.scheme_name}", key=f"btn_chk_{sch.scheme_id}"):
                     st.session_state.selected_quick_prompt = f"Please prepare a complete application checklist and document requirement draft for {sch.scheme_name}."
@@ -607,7 +725,7 @@ elif mode == "🎯 Scheme Eligibility Wizard":
 # ==========================================
 elif mode == "🧮 Smart Utility Calculators":
     st.markdown("## 🧮 Interactive Citizen & Utility Calculators")
-    st.write("Transparent, rule-based mathematical calculators to audit bills, security deposits, and retirement PF advances.")
+    st.write("Transparent, rule-based mathematical calculators to audit electricity bills, rental security deposits, and retirement PF advances.")
 
     calc_tab1, calc_tab2, calc_tab3 = st.tabs([
         "⚡ Electricity Slab Tariff Estimator",
@@ -689,56 +807,6 @@ elif mode == "🧮 Smart Utility Calculators":
             )
         st.markdown('</div>', unsafe_allow_html=True)
 
-# ==========================================
-# TAB 4: CAMERA & BILL OCR SCANNER
-# ==========================================
-elif mode == "📸 Camera & Bill OCR Scanner":
-    st.markdown("## 📸 Camera & Bill Document OCR Scanner")
-    st.write("Capture a photo or upload a scan of your electricity bill, LPG receipt, or rent notice. SAATHI AI will read the text using OCR and extract all key billing parameters.")
-
-    ocr_col1, ocr_col2 = st.columns([1, 1])
-    with ocr_col1:
-        st.subheader("Upload Bill Image / Scanned Document")
-        img_file = st.file_uploader("Upload Bill Image (PNG, JPG, JPEG):", type=["png", "jpg", "jpeg"])
-        camera_photo = st.camera_input("Or Take a Live Photo of Your Bill with Camera:")
-        
-        target_file = camera_photo or img_file
-        
-        if target_file:
-            st.image(target_file, caption="Uploaded Bill Preview", use_container_width=True)
-
-    with ocr_col2:
-        st.subheader("🔍 OCR Extraction & Tariff Parameters")
-        if target_file:
-            raw_bytes = target_file.getvalue()
-            with st.spinner("Extracting text and recognizing characters via OCR engine..."):
-                extracted_text, ocr_meta = BillOCRScanner.extract_text_from_image(raw_bytes, target_file.name if hasattr(target_file, "name") else "camera_bill.png")
-            
-            st.caption(f"⚙️ OCR Engine: {ocr_meta.get('ocr_engine')} • Dimensions: {ocr_meta.get('image_size', 'N/A')}")
-            
-            with st.expander("📄 View Raw Extracted Text", expanded=False):
-                st.text_area("Extracted Characters:", value=extracted_text, height=120)
-
-            parsed_elec = DocumentParser.extract_electricity_bill_fields(extracted_text)
-            parsed_lpg = DocumentParser.extract_lpg_receipt_fields(extracted_text)
-            parsed_rent = DocumentParser.extract_rent_fields(extracted_text)
-
-            st.markdown("#### ⚡ Recognized Electricity Parameters:")
-            p1, p2, p3 = st.columns(3)
-            p1.metric("CA / Consumer No.", str(parsed_elec['consumer_number'] or "Not Found"))
-            p2.metric("Units (kWh)", f"{parsed_elec['units_consumed'] or 0.0} kWh")
-            p3.metric("Billed Amount", f"₹{parsed_elec['total_amount'] or 0.0}")
-
-            if parsed_elec['is_average_or_idf']:
-                st.warning("⚠️ IDF / Average reading detected on bill! You may be entitled to a meter accuracy check.")
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🚀 Audit This Scanned Bill with SAATHI AI", type="primary", use_container_width=True):
-                st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF: {parsed_elec['is_average_or_idf']}."
-                st.rerun()
-        else:
-            st.info("👈 Upload an image or snap a picture using the camera to start optical character recognition.")
-
     with calc_tab2:
         st.markdown('<div class="calc-container">', unsafe_allow_html=True)
         c1, c2 = st.columns(2)
@@ -795,7 +863,59 @@ elif mode == "📸 Camera & Bill OCR Scanner":
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# TAB 3: OFFICIAL KNOWLEDGE BASE
+# TAB 4: CAMERA & BILL OCR SCANNER
+# ==========================================
+elif mode == "📸 Camera & Bill OCR Scanner":
+    st.markdown("## 📸 Camera & Bill Document OCR Scanner")
+    st.write("Capture a photo or upload a scan of your electricity bill, LPG receipt, or rent notice. SAATHI AI will read the text using OCR and extract all key billing parameters.")
+
+    ocr_col1, ocr_col2 = st.columns([1, 1])
+    with ocr_col1:
+        st.markdown('<div class="saathi-card">', unsafe_allow_html=True)
+        st.subheader("Upload Bill Image / Scanned Document")
+        img_file = st.file_uploader("Upload Bill Image (PNG, JPG, JPEG):", type=["png", "jpg", "jpeg"])
+        camera_photo = st.camera_input("Or Take a Live Photo of Your Bill with Camera:")
+        
+        target_file = camera_photo or img_file
+        
+        if target_file:
+            st.image(target_file, caption="Uploaded Bill Preview", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with ocr_col2:
+        st.markdown('<div class="saathi-card">', unsafe_allow_html=True)
+        st.subheader("🔍 OCR Extraction & Tariff Parameters")
+        if target_file:
+            raw_bytes = target_file.getvalue()
+            with st.spinner("Extracting text and recognizing characters via OCR engine..."):
+                extracted_text, ocr_meta = BillOCRScanner.extract_text_from_image(raw_bytes, target_file.name if hasattr(target_file, "name") else "camera_bill.png")
+            
+            st.caption(f"⚙️ OCR Engine: {ocr_meta.get('ocr_engine')} • Dimensions: {ocr_meta.get('image_size', 'N/A')}")
+            
+            with st.expander("📄 View Raw Extracted Text", expanded=False):
+                st.text_area("Extracted Characters:", value=extracted_text, height=120)
+
+            parsed_elec = DocumentParser.extract_electricity_bill_fields(extracted_text)
+
+            st.markdown("#### ⚡ Recognized Electricity Parameters:")
+            p1, p2, p3 = st.columns(3)
+            p1.metric("CA / Consumer No.", str(parsed_elec['consumer_number'] or "Not Found"))
+            p2.metric("Units (kWh)", f"{parsed_elec['units_consumed'] or 0.0} kWh")
+            p3.metric("Billed Amount", f"₹{parsed_elec['total_amount'] or 0.0}")
+
+            if parsed_elec['is_average_or_idf']:
+                st.warning("⚠️ IDF / Average reading detected on bill! You may be entitled to a meter accuracy check.")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🚀 Audit This Scanned Bill with SAATHI AI", type="primary", use_container_width=True):
+                st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF: {parsed_elec['is_average_or_idf']}."
+                st.rerun()
+        else:
+            st.info("👈 Upload an image or snap a picture using the camera to start optical character recognition.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# ==========================================
+# TAB 5: OFFICIAL KNOWLEDGE BASE
 # ==========================================
 elif mode == "📚 Official Knowledge Base":
     st.markdown("## 📚 Vetted Document Knowledge Base")
@@ -821,6 +941,7 @@ elif mode == "📚 Official Knowledge Base":
                 st.caption(f"📌 Authority / Source: {ch.source_url_or_file} • 📅 Last Verified: {ch.last_updated}")
 
     with col2:
+        st.markdown('<div class="saathi-card">', unsafe_allow_html=True)
         st.subheader("Upload Document / Notice")
         st.write("Upload a bill, scheme notice, or rental agreement to ask questions about it.")
         uploaded_file = st.file_uploader("Upload .txt, .md, or .json file", type=["txt", "md", "json"])
@@ -830,13 +951,14 @@ elif mode == "📚 Official Knowledge Base":
                 new_chunks = st.session_state.knowledge_store.add_user_document(uploaded_file.name, content)
                 st.success(f"Ingested {len(new_chunks)} section(s) into SAATHI knowledge store!")
                 st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ==========================================
-# TAB 4: CITIZEN ACTION VAULT
+# TAB 6: CITIZEN ACTION VAULT
 # ==========================================
 elif mode == "📋 Citizen Action Vault":
     st.markdown("## 📋 Citizen Action Vault & Printable Documents")
-    st.write("All complaint letters, RTI applications, and checklists you reviewed and approved are saved here permanently with printable official letterheads.")
+    st.write("All complaint letters, RTI applications, and checklists you reviewed and approved are saved here permanently with QR-verified printable official letterheads.")
 
     approved_list = st.session_state.db.get_user_approved_actions(st.session_state.current_user["user_id"])
     if not approved_list:
@@ -894,7 +1016,7 @@ elif mode == "📋 Citizen Action Vault":
                     )
 
 # ==========================================
-# TAB 5: LIVE RESEARCH BENCHMARKS
+# TAB 7: LIVE RESEARCH BENCHMARKS
 # ==========================================
 elif mode == "📊 Live Research Benchmarks":
     st.markdown("## 📊 Research Benchmark Evaluations")
@@ -1000,7 +1122,7 @@ elif mode == "📊 Live Research Benchmarks":
             st.dataframe(red_rows, use_container_width=True)
 
 # ==========================================
-# TAB 6: STUDENT MODEL TRAINING HUB
+# TAB 8: STUDENT MODEL TRAINING HUB
 # ==========================================
 elif mode == "🎓 Student Model Training Hub":
     st.markdown("## 🎓 Student Model Fine-Tuning Hub")
@@ -1010,10 +1132,10 @@ elif mode == "🎓 Student Model Training Hub":
     
     # Model Specs & Status Banner
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 18px 24px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 18px 24px; border-radius: 14px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h4 style="margin: 0; color: #F8FAFC;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
+                <h4 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
                 <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.88rem;">QLoRA Rank: r=16, Alpha=32 • Trainable Parameters: 2.16M (0.4359%) • Target: q, k, v, o projections</p>
             </div>
             <div>
@@ -1099,7 +1221,7 @@ python3 training/test_fine_tuned_model.py
         st.info("Upload `training/SAATHI_Model_Training_Colab.ipynb` to Google Colab for 1-click cloud training with free T4 GPU!")
 
 # ==========================================
-# TAB 7: WHATSAPP & TELEGRAM BOTS
+# TAB 9: WHATSAPP & TELEGRAM BOTS
 # ==========================================
 elif mode == "🤖 WhatsApp & Telegram Bots":
     st.markdown("## 🤖 SAATHI AI — WhatsApp & Telegram Mobile Bots")
@@ -1155,7 +1277,7 @@ elif mode == "🤖 WhatsApp & Telegram Bots":
         """)
 
 # ==========================================
-# TAB 8: RESEARCH PROPOSAL & JOURNAL
+# TAB 10: RESEARCH PROPOSAL & JOURNAL
 # ==========================================
 elif mode == "📄 Research Proposal & Journal":
     st.markdown("## 📄 Research Documentation & Viva Prep")
@@ -1178,7 +1300,7 @@ elif mode == "📄 Research Proposal & Journal":
                 st.markdown(f.read())
 
 # ==========================================
-# TAB 8: REST API & DEVELOPER HUB
+# TAB 11: REST API & DEVELOPER HUB
 # ==========================================
 elif mode == "🔌 REST API & Developer Hub":
     st.markdown("## 🔌 SAATHI AI — REST API & Developer Hub")
@@ -1186,10 +1308,10 @@ elif mode == "🔌 REST API & Developer Hub":
 
     # Server Status Card
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 20px 24px; border-radius: 14px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1); color: white;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
-                <h3 style="margin: 0; color: #F8FAFC;">🟢 FastAPI Server: Operational</h3>
+                <h3 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif;">🟢 FastAPI Server: Operational</h3>
                 <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">Base URL: <code>http://localhost:8000</code> • OpenAPI 3.1 Specification</p>
             </div>
             <div style="display: flex; gap: 10px;">
@@ -1305,4 +1427,3 @@ bill_audit = requests.post(
 ).json()
 print("Estimated Bill:", bill_audit["total_estimated_bill"])
         """, language="python")
-
