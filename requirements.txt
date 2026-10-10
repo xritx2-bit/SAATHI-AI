@@ -16,3 +16,5 @@ transformers
 peft
 accelerate
 datasets
+qrcode>=8.0.0
+easyocr>=1.7.0

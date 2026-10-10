@@ -22,6 +22,8 @@ from saathi.voice.speech import VoiceEngine
 from saathi.db.chat_history import ChatHistoryManager
 from saathi.auth.firebase_auth import FirebaseAuthService
 from saathi.llm.local_model import LocalFineTunedModel
+from saathi.tools.scheme_finder import WelfareSchemeFinder, CitizenProfile
+from saathi.knowledge.ocr_parser import BillOCRScanner
 
 
 
@@ -276,11 +278,14 @@ mode = st.sidebar.radio(
     "Navigation Portal / नेविगेशन:",
     [
         "💬 AI Assistant & Chat",
+        "🎯 Scheme Eligibility Wizard",
         "🧮 Smart Utility Calculators",
+        "📸 Camera & Bill OCR Scanner",
         "📚 Official Knowledge Base",
         "📋 Citizen Action Vault",
         "📊 Live Research Benchmarks",
         "🎓 Student Model Training Hub",
+        "🤖 WhatsApp & Telegram Bots",
         "📄 Research Proposal & Journal",
         "🔌 REST API & Developer Hub"
     ]
@@ -505,9 +510,100 @@ if mode == "💬 AI Assistant & Chat":
         )
         st.rerun()
 
+# ==========================================
+# TAB 2: SCHEME ELIGIBILITY WIZARD
+# ==========================================
+elif mode == "🎯 Scheme Eligibility Wizard":
+    st.markdown("## 🎯 Citizen Welfare Scheme Eligibility Wizard")
+    st.write("Find out all Central and State government welfare schemes, direct cash benefits, and subsidies you are eligible for in under 30 seconds.")
+
+    w_col1, w_col2 = st.columns([1, 1])
+    with w_col1:
+        st.subheader("👤 Citizen Demographic Profile")
+        w_state = st.selectbox("State of Residence / राज्य:", ["All India", "Delhi", "Maharashtra", "Uttar Pradesh", "Bihar", "Madhya Pradesh", "Rajasthan", "Karnataka", "West Bengal", "Tamil Nadu", "Gujarat", "Punjab", "Haryana"])
+        w_age = st.slider("Citizen Age (Years) / उम्र:", min_value=1, max_value=90, value=38)
+        w_gender = st.selectbox("Gender / लिंग:", ["Male", "Female", "Other"])
+        w_occ = st.selectbox("Primary Occupation / व्यवसाय:", ["Farmer", "Street Vendor", "Unorganized Worker", "Student", "Senior Citizen", "Homemaker", "Salaried"])
+        w_inc = st.slider("Annual Household Income (₹) / वार्षिक पारिवारिक आय:", min_value=30000, max_value=1500000, value=140000, step=10000)
+        
+        c_sub1, c_sub2 = st.columns(2)
+        with c_sub1:
+            w_land = st.checkbox("Owns Cultivable Agricultural Land?", value=True if w_occ == "Farmer" else False)
+            w_diff = st.checkbox("Differently Abled (Divyangjan)?", value=False)
+        with c_sub2:
+            w_girl = st.checkbox("Has Girl Child (under 10 years)?", value=False)
+            w_caste = st.selectbox("Social Category:", ["General", "OBC", "SC", "ST", "EWS"])
+
+        profile = CitizenProfile(
+            state=w_state,
+            age=w_age,
+            gender=w_gender,
+            occupation=w_occ,
+            annual_income=float(w_inc),
+            has_cultivable_land=w_land,
+            caste_category=w_caste,
+            has_girl_child=w_girl,
+            girl_child_age=6 if w_girl else None,
+            is_differently_abled=w_diff
+        )
+
+    with w_col2:
+        matched_schemes = WelfareSchemeFinder.match_schemes_for_citizen(profile)
+        eligible_schemes = [s for s in matched_schemes if s.is_eligible]
+        
+        st.subheader("🏆 Your Eligibility Summary")
+        m_col1, m_col2 = st.columns(2)
+        m_col1.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-label">Directly Eligible Schemes</div>
+            <div class="metric-val" style="color: #059669;">{len(eligible_schemes)} / {len(matched_schemes)}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        m_col2.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-label">Profile Fit Rating</div>
+            <div class="metric-val" style="color: #0284C7;">{int((len(eligible_schemes)/len(matched_schemes))*100)}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.write("Click on any scheme below to view exact benefits, required documents, and one-click application checklists:")
+
+    st.markdown("<hr style='margin: 20px 0;'>", unsafe_allow_html=True)
+
+    # Render scheme cards
+    st.subheader(f"📋 Verified Government Schemes ({len(matched_schemes)})")
+    for sch in matched_schemes:
+        badge_text = "🟢 ELIGIBLE" if sch.is_eligible else "🟡 PARTIAL FIT / CHECK CONDITIONS"
+        
+        with st.expander(f"✨ {sch.scheme_name} — {sch.category} [{badge_text}]"):
+            st.markdown(f"**🏛️ Authority:** {sch.ministry_or_state}")
+            st.markdown(f"**💰 Key Benefits:** {sch.benefit_summary}")
+            
+            c_s1, c_s2 = st.columns(2)
+            with c_s1:
+                st.markdown("**📌 Key Eligibility Conditions:**")
+                for cond in sch.key_conditions:
+                    st.write(f"- {cond}")
+            with c_s2:
+                st.markdown("**📑 Required Documents Checklist:**")
+                for doc in sch.required_documents:
+                    st.write(f" [ ] {doc}")
+
+            st.markdown("**🚀 Next Steps to Apply:**")
+            for act in sch.action_checklist:
+                st.write(f"• {act}")
+
+            c_btn1, c_btn2 = st.columns([1, 3])
+            with c_btn1:
+                st.markdown(f'<a href="{sch.portal_url}" target="_blank" style="background: #2563EB; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">🌐 Official Portal</a>', unsafe_allow_html=True)
+            with c_btn2:
+                if st.button(f"Draft Application Checklist for {sch.scheme_name}", key=f"btn_chk_{sch.scheme_id}"):
+                    st.session_state.selected_quick_prompt = f"Please prepare a complete application checklist and document requirement draft for {sch.scheme_name}."
+                    st.rerun()
 
 # ==========================================
-# TAB 2: SMART UTILITY CALCULATORS
+# TAB 3: SMART UTILITY CALCULATORS
 # ==========================================
 elif mode == "🧮 Smart Utility Calculators":
     st.markdown("## 🧮 Interactive Citizen & Utility Calculators")
@@ -524,11 +620,21 @@ elif mode == "🧮 Smart Utility Calculators":
         col1, col2 = st.columns(2)
         with col1:
             st.subheader("⚡ Electricity Tariff Inputs")
+            state_opt = st.selectbox(
+                "State / DISCOM Tariff Framework:",
+                [
+                    "Delhi (DERC / TPDDL / BRPL - Lifeline Subsidy)",
+                    "Maharashtra (MSEDCL / Mahavitaran)",
+                    "Uttar Pradesh (UPPCL / PVVNL)",
+                    "Karnataka (BESCOM Bangalore)",
+                    "Standard (National Benchmark)"
+                ]
+            )
             units = st.slider("Units Consumed (kWh / Units):", min_value=0, max_value=1200, value=280, step=10)
             load = st.number_input("Sanctioned Load (kW):", min_value=0.5, max_value=20.0, value=2.0, step=0.5)
             is_idf = st.checkbox("Is bill marked Defective Meter / Average Assessment (IDF)?")
         
-        calc_res = UtilityCalculators.calculate_electricity_bill(units, load, is_average_or_idf=is_idf)
+        calc_res = UtilityCalculators.calculate_electricity_bill(units, load, state=state_opt, is_average_or_idf=is_idf)
         with col2:
             st.subheader("💳 Verified Bill Calculation Breakdown")
             m1, m2 = st.columns(2)
@@ -546,8 +652,10 @@ elif mode == "🧮 Smart Utility Calculators":
             """, unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
-            st.write(f"• **Fixed Demand Charges ({load} kW @ ₹75/kW):** ₹{calc_res['fixed_charge']:.2f}")
-            st.write(f"• **State Electricity Duty (6%):** ₹{calc_res['electricity_duty']:.2f}")
+            st.write(f"• **Fixed Demand Charges ({load} kW):** ₹{calc_res['fixed_charge']:.2f}")
+            st.write(f"• **State Electricity Duty & Tax:** ₹{calc_res['electricity_duty']:.2f}")
+            if calc_res.get("subsidy_applied", 0.0) > 0:
+                st.success(f"🎁 Government Subsidy Applied: -₹{calc_res['subsidy_applied']:.2f}")
             with st.expander("🔍 View Telescopic Slab Calculations"):
                 for s in calc_res["slab_breakdown"]:
                     st.write(f"- {s}")
@@ -557,6 +665,7 @@ elif mode == "🧮 Smart Utility Calculators":
             # Generate Tariff Audit PDF
             audit_pdf_bytes = SaathiPDFGenerator.generate_bill_audit_pdf({
                 "inputs": {
+                    "Discom / State": state_opt,
                     "Units Consumed (kWh)": f"{units} Units",
                     "Sanctioned Load": f"{load} kW",
                     "Reading Assessment": "IDF / Defective Reading Flagged" if is_idf else "Actual Meter Reading"
@@ -564,7 +673,8 @@ elif mode == "🧮 Smart Utility Calculators":
                 "breakdown": {
                     "Energy Charges": f"Rs. {calc_res['energy_charge']:.2f}",
                     "Fixed Demand Charges": f"Rs. {calc_res['fixed_charge']:.2f}",
-                    "State Electricity Duty (6%)": f"Rs. {calc_res['electricity_duty']:.2f}",
+                    "State Electricity Duty": f"Rs. {calc_res['electricity_duty']:.2f}",
+                    "Subsidy Applied": f"- Rs. {calc_res.get('subsidy_applied', 0.0):.2f}",
                     "Total Estimated Bill": f"Rs. {calc_res['total_estimated_bill']:.2f}"
                 }
             })
@@ -578,6 +688,56 @@ elif mode == "🧮 Smart Utility Calculators":
                 key="dl_elec_pdf"
             )
         st.markdown('</div>', unsafe_allow_html=True)
+
+# ==========================================
+# TAB 4: CAMERA & BILL OCR SCANNER
+# ==========================================
+elif mode == "📸 Camera & Bill OCR Scanner":
+    st.markdown("## 📸 Camera & Bill Document OCR Scanner")
+    st.write("Capture a photo or upload a scan of your electricity bill, LPG receipt, or rent notice. SAATHI AI will read the text using OCR and extract all key billing parameters.")
+
+    ocr_col1, ocr_col2 = st.columns([1, 1])
+    with ocr_col1:
+        st.subheader("Upload Bill Image / Scanned Document")
+        img_file = st.file_uploader("Upload Bill Image (PNG, JPG, JPEG):", type=["png", "jpg", "jpeg"])
+        camera_photo = st.camera_input("Or Take a Live Photo of Your Bill with Camera:")
+        
+        target_file = camera_photo or img_file
+        
+        if target_file:
+            st.image(target_file, caption="Uploaded Bill Preview", use_container_width=True)
+
+    with ocr_col2:
+        st.subheader("🔍 OCR Extraction & Tariff Parameters")
+        if target_file:
+            raw_bytes = target_file.getvalue()
+            with st.spinner("Extracting text and recognizing characters via OCR engine..."):
+                extracted_text, ocr_meta = BillOCRScanner.extract_text_from_image(raw_bytes, target_file.name if hasattr(target_file, "name") else "camera_bill.png")
+            
+            st.caption(f"⚙️ OCR Engine: {ocr_meta.get('ocr_engine')} • Dimensions: {ocr_meta.get('image_size', 'N/A')}")
+            
+            with st.expander("📄 View Raw Extracted Text", expanded=False):
+                st.text_area("Extracted Characters:", value=extracted_text, height=120)
+
+            parsed_elec = DocumentParser.extract_electricity_bill_fields(extracted_text)
+            parsed_lpg = DocumentParser.extract_lpg_receipt_fields(extracted_text)
+            parsed_rent = DocumentParser.extract_rent_fields(extracted_text)
+
+            st.markdown("#### ⚡ Recognized Electricity Parameters:")
+            p1, p2, p3 = st.columns(3)
+            p1.metric("CA / Consumer No.", str(parsed_elec['consumer_number'] or "Not Found"))
+            p2.metric("Units (kWh)", f"{parsed_elec['units_consumed'] or 0.0} kWh")
+            p3.metric("Billed Amount", f"₹{parsed_elec['total_amount'] or 0.0}")
+
+            if parsed_elec['is_average_or_idf']:
+                st.warning("⚠️ IDF / Average reading detected on bill! You may be entitled to a meter accuracy check.")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🚀 Audit This Scanned Bill with SAATHI AI", type="primary", use_container_width=True):
+                st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF: {parsed_elec['is_average_or_idf']}."
+                st.rerun()
+        else:
+            st.info("👈 Upload an image or snap a picture using the camera to start optical character recognition.")
 
     with calc_tab2:
         st.markdown('<div class="calc-container">', unsafe_allow_html=True)
@@ -939,7 +1099,63 @@ python3 training/test_fine_tuned_model.py
         st.info("Upload `training/SAATHI_Model_Training_Colab.ipynb` to Google Colab for 1-click cloud training with free T4 GPU!")
 
 # ==========================================
-# TAB 7: RESEARCH PROPOSAL & JOURNAL
+# TAB 7: WHATSAPP & TELEGRAM BOTS
+# ==========================================
+elif mode == "🤖 WhatsApp & Telegram Bots":
+    st.markdown("## 🤖 SAATHI AI — WhatsApp & Telegram Mobile Bots")
+    st.write("Deploy and test citizen access to SAATHI AI directly from WhatsApp and Telegram messaging apps.")
+
+    bot_tab1, bot_tab2, bot_tab3 = st.tabs([
+        "💬 Interactive Bot Simulator",
+        "📱 Telegram Bot Setup Guide",
+        "🟢 WhatsApp Cloud API Webhook"
+    ])
+
+    with bot_tab1:
+        st.subheader("🧪 Live Mobile Messaging Simulator")
+        sim_platform = st.radio("Simulate Channel:", ["WhatsApp", "Telegram"], horizontal=True)
+        sim_phone = st.text_input("Simulated Mobile Number:", value="+91 98765 43210")
+        sim_msg = st.text_input("User Message:", value="PM kisan ka 2000 rupaye nahi aaya kya karein?")
+        
+        if st.button("📲 Send Simulated Message"):
+            from integrations.telegram_bot import SaathiTelegramBot
+            bot_svc = SaathiTelegramBot()
+            res = bot_svc.handle_incoming_message({"chat": {"id": sim_phone}, "text": sim_msg})
+            
+            st.markdown(f"""
+            <div style="background: {'#E7F8ED' if sim_platform == 'WhatsApp' else '#E3F2FD'}; border: 1px solid {'#86EFAC' if sim_platform == 'WhatsApp' else '#90CAF9'}; border-radius: 12px; padding: 18px; margin-top: 12px;">
+                <div style="font-weight: 700; color: {'#166534' if sim_platform == 'WhatsApp' else '#1565C0'}; margin-bottom: 8px;">
+                    {'📱 WhatsApp Response' if sim_platform == 'WhatsApp' else '✈️ Telegram Response'} [To: {sim_phone}]
+                </div>
+                <div style="white-space: pre-line; color: #1E293B; font-size: 0.95rem;">{res['reply_text']}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with bot_tab2:
+        st.subheader("✈️ 3-Step Telegram Bot Setup")
+        st.markdown("""
+        1. **Create Bot:** Message `@BotFather` on Telegram and type `/newbot` to get your `TELEGRAM_BOT_TOKEN`.
+        2. **Configure Environment:**
+           ```bash
+           export TELEGRAM_BOT_TOKEN="your_token_here"
+           ```
+        3. **Run Telegram Bot Service:**
+           ```bash
+           python3 integrations/telegram_bot.py
+           ```
+        """)
+
+    with bot_tab3:
+        st.subheader("🟢 Meta WhatsApp Cloud API Setup")
+        st.markdown("""
+        1. **Create App:** Set up a WhatsApp Business App on the [Meta for Developers Portal](https://developers.facebook.com).
+        2. **Configure Webhook:** Point the Meta Callback URL to:
+           `https://your-domain.com/api/v1/whatsapp/webhook`
+        3. **Webhook Verification Token:** `saathi_ai_token_2026`
+        """)
+
+# ==========================================
+# TAB 8: RESEARCH PROPOSAL & JOURNAL
 # ==========================================
 elif mode == "📄 Research Proposal & Journal":
     st.markdown("## 📄 Research Documentation & Viva Prep")

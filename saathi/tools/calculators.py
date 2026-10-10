@@ -17,56 +17,181 @@ class UtilityCalculators:
         is_average_or_idf: bool = False
     ) -> Dict[str, Any]:
         """
-        Calculates electricity bill based on telescopic slab tariffs in India.
+        Calculates electricity bill based on state-specific telescopic slab tariffs in India:
+        - Delhi (DERC / TPDDL / BRPL): Lifeline 100% subsidy (0-200 units) and ₹800 subsidy (201-400 units).
+        - Maharashtra (MSEDCL / Mahavitaran): 0-100 @ ₹3.36, 101-300 @ ₹7.34, 301-500 @ ₹10.37, >500 @ ₹11.86.
+        - Uttar Pradesh (UPPCL): 0-100 @ ₹3.35, 101-150 @ ₹3.85, 151-300 @ ₹5.00, >300 @ ₹6.00.
+        - Karnataka (BESCOM): Telescopic rates + Gruha Jyothi benefit notes.
+        - Standard / National Benchmark: 0-100 @ ₹3.50, 101-200 @ ₹5.00, 201-400 @ ₹6.50, >400 @ ₹8.00.
         """
-        # Standard benchmark slab rates (Rs per unit)
-        # 0-100 units: Rs 3.50
-        # 101-200 units: Rs 5.00
-        # 201-400 units: Rs 6.50
-        # 400+ units: Rs 8.00
-        # Fixed Charge: Rs 75 per kW of sanctioned load
-        # Electricity Duty & Tax: 6% of energy charges
-        
-        fixed_charge = sanctioned_load_kw * 75.0
-        energy_charge = 0.0
+        st_lower = state.lower()
         slab_breakdown = []
-        
-        remaining_units = units_consumed
-        
-        # Slab 1: 0 - 100
-        u1 = min(remaining_units, 100)
-        if u1 > 0:
-            c1 = u1 * 3.50
-            energy_charge += c1
-            slab_breakdown.append(f"0–100 units: {u1:.0f} units @ ₹3.50 = ₹{c1:.2f}")
-            remaining_units -= u1
+        subsidy_applied = 0.0
+        rem_units = units_consumed
+
+        if "delhi" in st_lower:
+            fixed_charge = 50.0 * sanctioned_load_kw if sanctioned_load_kw <= 2.0 else 100.0 * sanctioned_load_kw
+            energy_charge = 0.0
             
-        # Slab 2: 101 - 200
-        u2 = min(remaining_units, 100)
-        if u2 > 0:
-            c2 = u2 * 5.00
-            energy_charge += c2
-            slab_breakdown.append(f"101–200 units: {u2:.0f} units @ ₹5.00 = ₹{c2:.2f}")
-            remaining_units -= u2
+            # Slabs: 0-200 @ 3.00, 201-400 @ 4.50, 401-800 @ 6.50, >800 @ 7.00
+            u1 = min(rem_units, 200)
+            if u1 > 0:
+                c1 = u1 * 3.00
+                energy_charge += c1
+                slab_breakdown.append(f"0–200 units: {u1:.0f} units @ ₹3.00 = ₹{c1:.2f}")
+                rem_units -= u1
+
+            u2 = min(rem_units, 200)
+            if u2 > 0:
+                c2 = u2 * 4.50
+                energy_charge += c2
+                slab_breakdown.append(f"201–400 units: {u2:.0f} units @ ₹4.50 = ₹{c2:.2f}")
+                rem_units -= u2
+
+            u3 = min(rem_units, 400)
+            if u3 > 0:
+                c3 = u3 * 6.50
+                energy_charge += c3
+                slab_breakdown.append(f"401–800 units: {u3:.0f} units @ ₹6.50 = ₹{c3:.2f}")
+                rem_units -= u3
+
+            if rem_units > 0:
+                c4 = rem_units * 7.00
+                energy_charge += c4
+                slab_breakdown.append(f">800 units: {rem_units:.0f} units @ ₹7.00 = ₹{c4:.2f}")
+
+            # Delhi Government Subsidy Rules
+            if units_consumed <= 200:
+                subsidy_applied = energy_charge + fixed_charge
+                slab_breakdown.append("🎁 Delhi Lifeline Subsidy (0-200 units): 100% Waiver on Energy & Fixed Charges")
+            elif units_consumed <= 400:
+                subsidy_applied = 800.0
+                slab_breakdown.append("🎁 Delhi Government Subsidy (201-400 units): ₹800 Flat Subsidy Deducted")
+
+            duty = max(0.0, (energy_charge + fixed_charge - subsidy_applied) * 0.05)
+            total_bill = max(0.0, fixed_charge + energy_charge + duty - subsidy_applied)
+
+        elif "maharashtra" in st_lower or "msedcl" in st_lower:
+            fixed_charge = 128.0 # Standard single-phase domestic monthly fixed charge
+            energy_charge = 0.0
             
-        # Slab 3: 201 - 400
-        u3 = min(remaining_units, 200)
-        if u3 > 0:
-            c3 = u3 * 6.50
-            energy_charge += c3
-            slab_breakdown.append(f"201–400 units: {u3:.0f} units @ ₹6.50 = ₹{c3:.2f}")
-            remaining_units -= u3
+            u1 = min(rem_units, 100)
+            if u1 > 0:
+                c1 = u1 * 3.36
+                energy_charge += c1
+                slab_breakdown.append(f"0–100 units: {u1:.0f} units @ ₹3.36 = ₹{c1:.2f}")
+                rem_units -= u1
+
+            u2 = min(rem_units, 200)
+            if u2 > 0:
+                c2 = u2 * 7.34
+                energy_charge += c2
+                slab_breakdown.append(f"101–300 units: {u2:.0f} units @ ₹7.34 = ₹{c2:.2f}")
+                rem_units -= u2
+
+            u3 = min(rem_units, 200)
+            if u3 > 0:
+                c3 = u3 * 10.37
+                energy_charge += c3
+                slab_breakdown.append(f"301–500 units: {u3:.0f} units @ ₹10.37 = ₹{c3:.2f}")
+                rem_units -= u3
+
+            if rem_units > 0:
+                c4 = rem_units * 11.86
+                energy_charge += c4
+                slab_breakdown.append(f">500 units: {rem_units:.0f} units @ ₹11.86 = ₹{c4:.2f}")
+
+            duty = (energy_charge + fixed_charge) * 0.16 # Maharashtra Electricity Duty ~16%
+            total_bill = fixed_charge + energy_charge + duty
+
+        elif "uttar pradesh" in st_lower or "uppcl" in st_lower:
+            fixed_charge = sanctioned_load_kw * 110.0
+            energy_charge = 0.0
+
+            u1 = min(rem_units, 100)
+            if u1 > 0:
+                c1 = u1 * 3.35
+                energy_charge += c1
+                slab_breakdown.append(f"0–100 units: {u1:.0f} units @ ₹3.35 = ₹{c1:.2f}")
+                rem_units -= u1
+
+            u2 = min(rem_units, 50)
+            if u2 > 0:
+                c2 = u2 * 3.85
+                energy_charge += c2
+                slab_breakdown.append(f"101–150 units: {u2:.0f} units @ ₹3.85 = ₹{c2:.2f}")
+                rem_units -= u2
+
+            u3 = min(rem_units, 150)
+            if u3 > 0:
+                c3 = u3 * 5.00
+                energy_charge += c3
+                slab_breakdown.append(f"151–300 units: {u3:.0f} units @ ₹5.00 = ₹{c3:.2f}")
+                rem_units -= u3
+
+            if rem_units > 0:
+                c4 = rem_units * 6.00
+                energy_charge += c4
+                slab_breakdown.append(f">300 units: {rem_units:.0f} units @ ₹6.00 = ₹{c4:.2f}")
+
+            duty = (energy_charge + fixed_charge) * 0.05
+            total_bill = fixed_charge + energy_charge + duty
+
+        elif "karnataka" in st_lower or "bescom" in st_lower:
+            fixed_charge = (1 * 110.0) + (max(0.0, sanctioned_load_kw - 1) * 210.0)
+            energy_charge = 0.0
+
+            u1 = min(rem_units, 100)
+            if u1 > 0:
+                c1 = u1 * 5.90
+                energy_charge += c1
+                slab_breakdown.append(f"0–100 units: {u1:.0f} units @ ₹5.90 = ₹{c1:.2f}")
+                rem_units -= u1
+
+            if rem_units > 0:
+                c2 = rem_units * 7.30
+                energy_charge += c2
+                slab_breakdown.append(f">100 units: {rem_units:.0f} units @ ₹7.30 = ₹{c2:.2f}")
+
+            duty = (energy_charge + fixed_charge) * 0.09
+            total_bill = fixed_charge + energy_charge + duty
+            if units_consumed <= 200:
+                slab_breakdown.append("💡 Note: Eligible Karnataka households registered under 'Gruha Jyothi' receive zero bill up to monthly entitlement.")
+
+        else:
+            # Standard National Benchmark
+            fixed_charge = sanctioned_load_kw * 75.0
+            energy_charge = 0.0
             
-        # Slab 4: > 400
-        u4 = remaining_units
-        if u4 > 0:
-            c4 = u4 * 8.00
-            energy_charge += c4
-            slab_breakdown.append(f"400+ units: {u4:.0f} units @ ₹8.00 = ₹{c4:.2f}")
-            
-        duty = (energy_charge + fixed_charge) * 0.06
-        total_bill = fixed_charge + energy_charge + duty
-        
+            u1 = min(rem_units, 100)
+            if u1 > 0:
+                c1 = u1 * 3.50
+                energy_charge += c1
+                slab_breakdown.append(f"0–100 units: {u1:.0f} units @ ₹3.50 = ₹{c1:.2f}")
+                rem_units -= u1
+                
+            u2 = min(rem_units, 100)
+            if u2 > 0:
+                c2 = u2 * 5.00
+                energy_charge += c2
+                slab_breakdown.append(f"101–200 units: {u2:.0f} units @ ₹5.00 = ₹{c2:.2f}")
+                rem_units -= u2
+                
+            u3 = min(rem_units, 200)
+            if u3 > 0:
+                c3 = u3 * 6.50
+                energy_charge += c3
+                slab_breakdown.append(f"201–400 units: {u3:.0f} units @ ₹6.50 = ₹{c3:.2f}")
+                rem_units -= u3
+                
+            if rem_units > 0:
+                c4 = rem_units * 8.00
+                energy_charge += c4
+                slab_breakdown.append(f"400+ units: {rem_units:.0f} units @ ₹8.00 = ₹{c4:.2f}")
+                
+            duty = (energy_charge + fixed_charge) * 0.06
+            total_bill = fixed_charge + energy_charge + duty
+
         warning = None
         if is_average_or_idf:
             warning = "⚠️ Note: Your bill is based on provisional/average assessment (IDF). You have the right to request actual meter verification to avoid overcharging."
@@ -74,9 +199,11 @@ class UtilityCalculators:
         return {
             "units": units_consumed,
             "sanctioned_load_kw": sanctioned_load_kw,
+            "state_discom": state,
             "fixed_charge": round(fixed_charge, 2),
             "energy_charge": round(energy_charge, 2),
             "electricity_duty": round(duty, 2),
+            "subsidy_applied": round(subsidy_applied, 2),
             "total_estimated_bill": round(total_bill, 2),
             "slab_breakdown": slab_breakdown,
             "warning": warning

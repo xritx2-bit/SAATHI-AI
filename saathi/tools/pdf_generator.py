@@ -5,10 +5,26 @@ utility audit certificates, and formal tenancy deposit demand notices.
 Supports full Unicode, Devanagari (Hindi), Indian Rupee (₹) symbol, and text shaping via fpdf2 & uharfbuzz.
 """
 import os
+import io
 import time
 import re
 from typing import Optional, Dict, Any, Tuple
 from fpdf import FPDF, XPos, YPos
+
+def _generate_qr_code_image(data: str) -> Optional[io.BytesIO]:
+    """Generates an in-memory PNG QR code buffer for official docket verification."""
+    try:
+        import qrcode
+        qr = qrcode.QRCode(box_size=3, border=1)
+        qr.add_data(data)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        return buf
+    except Exception:
+        return None
 
 def _setup_pdf_fonts(pdf: FPDF) -> Tuple[str, bool, bool]:
     """
@@ -155,6 +171,15 @@ class SaathiPDFGenerator:
         pdf.cell(0, 6, _clean_text(f"Date: {date_str}", is_unicode, supports_dev), align="R", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(4)
         
+        # Embed Verification QR Code in letter
+        qr_data = f"SAATHI-VERIFIED|DOCKET:{docket}|DATE:{date_str}|CITIZEN:{author_name}|AUTH:REGULATORY_GATED"
+        qr_buf = _generate_qr_code_image(qr_data)
+        if qr_buf:
+            try:
+                pdf.image(qr_buf, x=172, y=32, w=22, h=22)
+            except Exception:
+                pass
+
         pdf.set_draw_color(203, 213, 225)
         pdf.line(15, pdf.get_y(), 195, pdf.get_y())
         pdf.ln(6)
@@ -162,7 +187,7 @@ class SaathiPDFGenerator:
         # Subject Title
         pdf.set_font(font_name, style="B", size=11)
         pdf.set_text_color(15, 62, 109) # Primary Blue
-        pdf.multi_cell(0, 7, _clean_text(f"SUBJECT: {title.upper()}", is_unicode, supports_dev))
+        pdf.multi_cell(150, 7, _clean_text(f"SUBJECT: {title.upper()}", is_unicode, supports_dev))
         pdf.ln(4)
 
         # Body Content
@@ -202,7 +227,7 @@ class SaathiPDFGenerator:
         pdf.set_y(-12)
         pdf.set_font(font_name, size=7)
         pdf.set_text_color(148, 163, 184)
-        pdf.cell(0, 5, _clean_text("Generated via SAATHI AI • Consumer Rights & Regulatory Guidance Platform • https://github.com/xritx2-bit/SAATHI-AI", is_unicode, supports_dev), align="C")
+        pdf.cell(0, 5, _clean_text("Generated via SAATHI AI • Consumer Rights & Regulatory Guidance Platform • Verified Digital Docket", is_unicode, supports_dev), align="C")
 
         return bytes(pdf.output())
 
@@ -231,11 +256,22 @@ class SaathiPDFGenerator:
         pdf.ln(12)
         pdf.set_text_color(30, 41, 59)
 
+        audit_id = f"AUD-{int(time.time())}"
         date_str = time.strftime("%d %B %Y, %H:%M")
         pdf.set_font(font_name, style="B", size=10)
-        pdf.cell(100, 6, _clean_text(f"Audit ID: AUD-{int(time.time())}", is_unicode, supports_dev))
+        pdf.cell(100, 6, _clean_text(f"Audit ID: {audit_id}", is_unicode, supports_dev))
         pdf.cell(0, 6, _clean_text(f"Generated: {date_str}", is_unicode, supports_dev), align="R", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(4)
+
+        # Embed Verification QR Code in Audit
+        qr_data = f"SAATHI-TARIFF-AUDIT|ID:{audit_id}|DATE:{date_str}|STATUS:VERIFIED_DERC_CERC"
+        qr_buf = _generate_qr_code_image(qr_data)
+        if qr_buf:
+            try:
+                pdf.image(qr_buf, x=172, y=32, w=22, h=22)
+            except Exception:
+                pass
+
         pdf.line(15, pdf.get_y(), 195, pdf.get_y())
         pdf.ln(6)
 
