@@ -7,8 +7,10 @@ __pycache__/
 
 # Training artifacts and checkpoints
 training/saathi_lora_adapter/
+training/saathi_lora_model/checkpoint-*/
 checkpoints/
 *.pt
+*.pth
 *.bin
 *.safetensors
 

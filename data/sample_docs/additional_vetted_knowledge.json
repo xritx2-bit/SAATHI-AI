@@ -97,5 +97,41 @@
     "authority_level": "official_government",
     "last_updated": "2026-07-20",
     "metadata": {"category": "healthcare", "topic": "jan_aushadhi"}
+  },
+  {
+    "id": "const_01",
+    "title": "Constitution of India: Fundamental Rights (Part III, Articles 12-35)",
+    "content": "The Constitution of India guarantees Fundamental Rights to every citizen: 1) Article 14: Equality before law and equal protection of laws. 2) Article 15: Prohibition of discrimination on grounds of religion, race, caste, sex, or place of birth in public places/services. 3) Article 19: Six basic freedoms including Freedom of Speech and Expression, peaceful assembly, movement, and trade/occupation. 4) Article 21: Protection of Life and Personal Liberty (Supreme Court has expanded this to include Right to Privacy, Health, Clean Environment, Shelter, and Dignified Livelihood). 5) Article 21A: Right to Free and Compulsory Education for all children aged 6 to 14 years.",
+    "source_url_or_file": "Constitution of India (Ministry of Law & Justice)",
+    "authority_level": "constitutional_statutory",
+    "last_updated": "2026-09-01",
+    "metadata": {"category": "constitution", "topic": "fundamental_rights"}
+  },
+  {
+    "id": "const_02",
+    "title": "Article 39A & Free Legal Aid (NALSA / Tele-Law Helpline 15100)",
+    "content": "Under Article 39A of the Constitution of India and the Legal Services Authorities Act 1987, the State is mandated to provide free and competent legal aid to marginalized citizens to ensure justice is not denied due to economic or other disabilities. Eligible for 100% Free Legal Aid: Women, children, SC/ST members, industrial workers, persons with disabilities, victims of trafficking/disaster, and persons in police or judicial custody. Citizens can access free government advocates through District Legal Services Authorities (DLSA), Taluk Legal Services Committees, or by dialing Tele-Law National Toll-Free Helpline 15100 / nalsa.gov.in.",
+    "source_url_or_file": "National Legal Services Authority (NALSA - nalsa.gov.in / 15100)",
+    "authority_level": "constitutional_statutory",
+    "last_updated": "2026-09-20",
+    "metadata": {"category": "constitution", "topic": "free_legal_aid"}
+  },
+  {
+    "id": "const_03",
+    "title": "Constitutional Remedies & Writs (Article 32 & Article 226)",
+    "content": "Dr. B.R. Ambedkar termed Article 32 as the 'Heart and Soul of the Constitution'. Citizens whose Fundamental Rights are violated can directly petition the Supreme Court under Article 32 or High Courts under Article 226. Types of Constitutional Writs: 1) Habeas Corpus ('To have the body'): Orders authorities to produce an illegally detained person before the court. 2) Mandamus ('We command'): Directs a public official or government department to perform their mandatory statutory duty. 3) Prohibition: Stops a lower court/tribunal from exceeding jurisdiction. 4) Certiorari: Quashes an illegal order passed by a lower authority. 5) Quo Warranto: Questions the legal authority of a person holding a public office.",
+    "source_url_or_file": "Supreme Court of India Constitutional Jurisprudence",
+    "authority_level": "constitutional_statutory",
+    "last_updated": "2026-08-30",
+    "metadata": {"category": "constitution", "topic": "writs_article_32"}
+  },
+  {
+    "id": "const_04",
+    "title": "Police Arrest Safeguards & Citizen Rights (Article 22 & D.K. Basu Rules)",
+    "content": "Under Article 22 of the Constitution, Bharatiya Nagarik Suraksha Sanhita (BNSS), and Supreme Court's landmark D.K. Basu judgment: 1) Right to Know Grounds of Arrest: Police must inform the arrested person of the exact reason and charges immediately. 2) Memo of Arrest: Must be prepared at the spot with signature of at least one witness/family member. 3) Right to Inform Family: Police must inform one relative/friend within 8-12 hours of arrest. 4) 24-Hour Magistrate Rule: Arrested person MUST be produced before the nearest Judicial Magistrate within 24 hours of arrest (excluding travel time); detention beyond 24 hours without magistrate order is unconstitutional. 5) Medical Examination: Arrested person has the right to be medically examined every 48 hours in custody. 6) Female Arrest: Women cannot be arrested before sunrise or after sunset without special permission from a Judicial Magistrate, and must be handled by female police officers.",
+    "source_url_or_file": "Supreme Court of India (D.K. Basu vs State of West Bengal / Article 22)",
+    "authority_level": "constitutional_statutory",
+    "last_updated": "2026-09-10",
+    "metadata": {"category": "constitution", "topic": "arrest_rights"}
   }
 ]

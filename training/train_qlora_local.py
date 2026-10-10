@@ -15,10 +15,11 @@ import time
 def train_saathi_model(
     base_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct",
     data_path: str = "data/training_data/train.jsonl",
+    val_data_path: str = "data/training_data/val.jsonl",
     output_adapter_dir: str = "training/saathi_lora_model",
-    epochs: int = 15,
+    epochs: int = 10,
     batch_size: int = 1,
-    gradient_accumulation_steps: int = 8,
+    gradient_accumulation_steps: int = 4,
     learning_rate: float = 2e-4,
     lora_rank: int = 64,
     lora_alpha: int = 128,
@@ -30,6 +31,7 @@ def train_saathi_model(
     print("=======================================================")
     print(f"Base Architecture: {base_model_name}")
     print(f"Training Dataset:  {data_path}")
+    print(f"Validation Data:   {val_data_path}")
     print(f"Output Directory:  {output_adapter_dir}")
     print(f"Epochs:            {epochs}")
     print(f"LoRA Capacity:     Rank r={lora_rank}, Alpha={lora_alpha}")
@@ -48,8 +50,8 @@ def train_saathi_model(
             lines = [json.loads(line) for line in f.readlines()]
         print(f"✅ Verified {len(lines)} training pairs.")
         print(f"Sample Input:  {lines[0]['input']}")
-        print(f"Sample Output: {lines[0]['output'][:80]}...")
-        print("\n🎉 Dry run completed! Run real training with: python3 training/train_qlora_local.py")
+        print(f"Sample Output: {lines[0]['output'][:100]}...")
+        print("\n🎉 Dry run completed! Ready for training.")
         return
 
     # Real Training Imports
@@ -71,6 +73,7 @@ def train_saathi_model(
 
     print(f"💻 Checking Hardware & CUDA Capabilities...")
     has_cuda = torch.cuda.is_available()
+    gpu_name = "CPU"
     if has_cuda:
         gpu_name = torch.cuda.get_device_name(0)
         vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
@@ -112,8 +115,9 @@ def train_saathi_model(
     if has_cuda:
         model = prepare_model_for_kbit_training(model)
 
+    model.config.use_cache = False
+
     print(f"\n⚙️ Step 3: Configuring Maximum-Potential LoRA (Rank={lora_rank}, Alpha={lora_alpha})...")
-    # Target all attention and feed-forward MLP projections
     target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 
     peft_config = LoraConfig(
@@ -138,11 +142,20 @@ def train_saathi_model(
             f"<|im_start|>assistant\n{example['output']}<|im_end|>"
         )
         tokens = tokenizer(formatted, max_length=max_seq_length, truncation=True, padding="max_length")
-        tokens["labels"] = tokens["input_ids"].copy()
+        # Mask pad tokens in labels with -100 so loss is only computed on real tokens
+        tokens["labels"] = [
+            (-100 if token_id == tokenizer.pad_token_id else token_id)
+            for token_id in tokens["input_ids"]
+        ]
         return tokens
 
-    raw_dataset = load_dataset("json", data_files={"train": data_path})
-    tokenized_dataset = raw_dataset["train"].map(format_prompts)
+    data_files = {"train": data_path}
+    if os.path.exists(val_data_path):
+        data_files["val"] = val_data_path
+
+    raw_dataset = load_dataset("json", data_files=data_files)
+    tokenized_train = raw_dataset["train"].map(format_prompts)
+    tokenized_val = raw_dataset["val"].map(format_prompts) if "val" in raw_dataset else None
 
     print(f"\n🏋️ Step 5: Executing GPU Training Loop ({epochs} Epochs on {base_model_name})...")
     training_args = TrainingArguments(
@@ -152,7 +165,7 @@ def train_saathi_model(
         gradient_accumulation_steps=gradient_accumulation_steps,
         learning_rate=learning_rate,
         lr_scheduler_type="cosine",
-        warmup_steps=6,
+        warmup_steps=5,
         fp16=has_cuda,
         gradient_checkpointing=True,
         logging_steps=5,
@@ -165,7 +178,8 @@ def train_saathi_model(
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=tokenized_dataset
+        train_dataset=tokenized_train,
+        eval_dataset=tokenized_val
     )
 
     t_start = time.time()
@@ -202,7 +216,9 @@ def train_saathi_model(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SAATHI AI Gemini 3.7-Style CoT Training")
     parser.add_argument("--dry-run", action="store_true", help="Validate dataset without training")
-    parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
+    parser.add_argument("--batch-size", type=int, default=1, help="Per device batch size")
+    parser.add_argument("--grad-accum", type=int, default=4, help="Gradient accumulation steps")
     parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct", help="Base HuggingFace model")
     parser.add_argument("--rank", type=int, default=64, help="LoRA Rank capacity")
     args = parser.parse_args()
@@ -210,6 +226,8 @@ if __name__ == "__main__":
     train_saathi_model(
         base_model_name=args.model,
         epochs=args.epochs,
+        batch_size=args.batch_size,
+        gradient_accumulation_steps=args.grad_accum,
         lora_rank=args.rank,
         lora_alpha=args.rank * 2,
         dry_run=args.dry_run

@@ -1,12 +1,12 @@
 {
   "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
   "style": "Gemini 3.7 Hybrid Thinking & CoT Efficiency",
-  "epochs": 12,
+  "epochs": 6,
   "lora_rank": 64,
   "lora_alpha": 128,
   "max_seq_length": 768,
-  "train_loss": 0.476447325554632,
-  "training_duration_seconds": 683.55,
+  "train_loss": 0.3129479928745651,
+  "training_duration_seconds": 1014.39,
   "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
-  "timestamp": "2026-10-10T21:13:27Z"
+  "timestamp": "2026-10-11T00:12:23Z"
 }
