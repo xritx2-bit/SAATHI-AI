@@ -281,7 +281,8 @@ mode = st.sidebar.radio(
         "📋 Citizen Action Vault",
         "📊 Live Research Benchmarks",
         "🎓 Student Model Training Hub",
-        "📄 Research Proposal & Journal"
+        "📄 Research Proposal & Journal",
+        "🔌 REST API & Developer Hub"
     ]
 )
 
@@ -959,3 +960,133 @@ elif mode == "📄 Research Proposal & Journal":
         if os.path.exists("docs/FIREBASE_SETUP_GUIDE.md"):
             with open("docs/FIREBASE_SETUP_GUIDE.md", "r", encoding="utf-8") as f:
                 st.markdown(f.read())
+
+# ==========================================
+# TAB 8: REST API & DEVELOPER HUB
+# ==========================================
+elif mode == "🔌 REST API & Developer Hub":
+    st.markdown("## 🔌 SAATHI AI — REST API & Developer Hub")
+    st.write("Connect mobile apps, WhatsApp chatbots, civic kiosks, or 3rd-party services directly to SAATHI AI's backend.")
+
+    # Server Status Card
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h3 style="margin: 0; color: #F8FAFC;">🟢 FastAPI Server: Operational</h3>
+                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">Base URL: <code>http://localhost:8000</code> • OpenAPI 3.1 Specification</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="http://localhost:8000/docs" target="_blank" style="background: #2563EB; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                    📖 Open Swagger UI Docs
+                </a>
+                <a href="http://localhost:8000/redoc" target="_blank" style="background: rgba(255,255,255,0.1); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);">
+                    📑 Open Redoc
+                </a>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    api_tab1, api_tab2, api_tab3, api_tab4 = st.tabs([
+        "🧠 Decision Controller API",
+        "🧮 Calculator Endpoints",
+        "📄 Document & PDF Endpoints",
+        "💻 Python / cURL Examples"
+    ])
+
+    with api_tab1:
+        st.subheader("`POST /api/v1/query`")
+        st.markdown("**Evaluates citizen queries through Evidence-Gated, Cost-Aware Policy:**")
+        st.code("""
+curl -X POST http://localhost:8000/api/v1/query \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "user_query": "PM kisan ka 2000 rupaye nahi aaya land seeding NO dikha raha hai",
+    "engine": "local_lora"
+  }'
+        """, language="bash")
+        st.markdown("**Sample Response:**")
+        st.json({
+            "decision": "RETRIEVE_AND_ANSWER",
+            "response_text": "Verified rules ke mutabik: Submit land records to local Patwari...",
+            "reasoning": "Successfully retrieved verified official evidence.",
+            "confidence": 0.70,
+            "detected_language": "hinglish",
+            "citations": ["PM-KISAN Portal Operational SOP"],
+            "safety_flags": [],
+            "latency_ms": 2.3
+        })
+
+    with api_tab2:
+        st.subheader("`POST /api/v1/tools/calculate-electricity`")
+        st.code("""
+curl -X POST http://localhost:8000/api/v1/tools/calculate-electricity \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "units_consumed": 280,
+    "sanctioned_load_kw": 2.0,
+    "is_average_or_idf": false
+  }'
+        """, language="bash")
+        
+        st.subheader("`POST /api/v1/tools/calculate-tenancy-deposit`")
+        st.code("""
+curl -X POST http://localhost:8000/api/v1/tools/calculate-tenancy-deposit \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "monthly_rent": 15000,
+    "security_deposit_paid": 45000,
+    "actual_damages": 2000,
+    "unpaid_bills": 1500
+  }'
+        """, language="bash")
+
+    with api_tab3:
+        st.subheader("`POST /api/v1/documents/parse`")
+        st.code("""
+curl -X POST http://localhost:8000/api/v1/documents/parse \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "raw_text": "CA No: 99887766, Units: 310 kWh, Total Amount: Rs 2150, Due Date: 20/11/2026"
+  }'
+        """, language="bash")
+
+        st.subheader("`POST /api/v1/documents/export-pdf`")
+        st.code("""
+curl -X POST http://localhost:8000/api/v1/documents/export-pdf \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "title": "Complaint to Tata Power for Excessive Meter Billing",
+    "content": "Dear SDO, please verify physical meter reading.",
+    "applicant_name": "Ramesh Kumar"
+  }' --output grievance_letter.pdf
+        """, language="bash")
+
+    with api_tab4:
+        st.subheader("🐍 Python Client Integration (SDK Snippet)")
+        st.code("""
+import requests
+
+API_BASE = "http://localhost:8000/api/v1"
+
+# 1. Ask SAATHI Decision Controller
+response = requests.post(
+    f"{API_BASE}/query",
+    json={
+        "user_query": "Landlord deducted 15000 for painting, is this legal?",
+        "engine": "local_lora"
+    }
+)
+result = response.json()
+print("Policy:", result["decision"])
+print("Answer:", result["response_text"])
+
+# 2. Audit Electricity Bill
+bill_audit = requests.post(
+    f"{API_BASE}/tools/calculate-electricity",
+    json={"units_consumed": 350, "sanctioned_load_kw": 3.0}
+).json()
+print("Estimated Bill:", bill_audit["total_estimated_bill"])
+        """, language="python")
+

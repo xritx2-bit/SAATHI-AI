@@ -118,6 +118,45 @@ class UtilityCalculators:
         }
 
     @staticmethod
+    def calculate_security_deposit_refund(
+        monthly_rent: float,
+        deposit_paid: float,
+        actual_damages: float = 0.0,
+        unpaid_bills: float = 0.0,
+        property_type: str = "residential"
+    ) -> Dict[str, Any]:
+        """
+        Calculates legal security deposit limits and allowable deductions under Model Tenancy Act (MTA):
+        - Residential max limit: 2 months rent
+        - Commercial max limit: 6 months rent
+        """
+        legal_cap_months = 2 if property_type.lower() == "residential" else 6
+        legal_max = monthly_rent * legal_cap_months
+        excess_deposit = max(0.0, deposit_paid - legal_max)
+        
+        allowable_deductions = actual_damages + unpaid_bills
+        refundable_amount = max(0.0, deposit_paid - allowable_deductions)
+        
+        notes = []
+        if excess_deposit > 0:
+            notes.append(f"⚠️ Excess Deposit: Under Model Tenancy Act, maximum deposit for {property_type} premises is capped at {legal_cap_months} months rent (₹{legal_max:,.2f}). Landlord is holding ₹{excess_deposit:,.2f} in excess.")
+        if actual_damages > 0:
+            notes.append(f"• Documented structural damage deduction: ₹{actual_damages:,.2f}")
+        if unpaid_bills > 0:
+            notes.append(f"• Unpaid utility dues deduction: ₹{unpaid_bills:,.2f}")
+        notes.append("• Landlord must refund deposit within 30 days of key handover after adjusting lawful dues.")
+
+        return {
+            "legal_max_deposit": round(legal_max, 2),
+            "excess_held_by_landlord": round(excess_deposit, 2),
+            "total_allowable_deductions": round(allowable_deductions, 2),
+            "refundable_amount": round(refundable_amount, 2),
+            "statutory_deadline_days": 30,
+            "notes": notes
+        }
+
+
+    @staticmethod
     def estimate_pf_advance_limit(
         pf_employee_share: float,
         pf_employer_share: float,
