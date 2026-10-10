@@ -27,7 +27,7 @@ class LocalFineTunedModel:
     @classmethod
     def load_model(
         cls,
-        base_model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
+        base_model_name: Optional[str] = None,
         adapter_dir: Optional[str] = None
     ):
         global _LOCAL_MODEL_INSTANCE, _LOCAL_TOKENIZER_INSTANCE
@@ -35,15 +35,38 @@ class LocalFineTunedModel:
             return _LOCAL_MODEL_INSTANCE, _LOCAL_TOKENIZER_INSTANCE
 
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
+        import json
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
         from peft import PeftModel
 
         path = adapter_dir or cls.get_adapter_path()
+        
+        # Auto-detect base model from adapter config
+        resolved_base = base_model_name or "Qwen/Qwen2.5-1.5B-Instruct"
+        cfg_path = os.path.join(path, "adapter_config.json")
+        if os.path.exists(cfg_path):
+            try:
+                with open(cfg_path, "r", encoding="utf-8") as f:
+                    cfg_data = json.load(f)
+                    resolved_base = cfg_data.get("base_model_name_or_path", resolved_base)
+            except Exception:
+                pass
+
         tokenizer = AutoTokenizer.from_pretrained(path)
+        
+        bnb_config = None
+        if torch.cuda.is_available():
+            bnb_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16
+            )
+
         base_model = AutoModelForCausalLM.from_pretrained(
-            base_model_name,
+            resolved_base,
+            quantization_config=bnb_config if torch.cuda.is_available() else None,
             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            device_map="auto"
+            device_map="auto" if torch.cuda.is_available() else "cpu"
         )
         model = PeftModel.from_pretrained(base_model, path)
         model.eval()

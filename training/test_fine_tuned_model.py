@@ -10,8 +10,8 @@ import argparse
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 def test_model(
-    base_model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
-    adapter_dir: str = "training/saathi_lora_adapter"
+    base_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct",
+    adapter_dir: str = "training/saathi_lora_model"
 ):
     print("\n=======================================================")
     print("🧪 Testing Fine-Tuned SAATHI Model")

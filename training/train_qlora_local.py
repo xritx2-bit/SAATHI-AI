@@ -12,12 +12,12 @@ import json
 import time
 
 def train_saathi_model(
-    base_model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
+    base_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct",
     data_path: str = "data/training_data/train.jsonl",
     output_adapter_dir: str = "training/saathi_lora_model",
     epochs: int = 15,
-    batch_size: int = 2,
-    gradient_accumulation_steps: int = 4,
+    batch_size: int = 1,
+    gradient_accumulation_steps: int = 8,
     learning_rate: float = 2e-4,
     lora_rank: int = 64,
     lora_alpha: int = 128,
@@ -136,7 +136,7 @@ def train_saathi_model(
     raw_dataset = load_dataset("json", data_files={"train": data_path})
     tokenized_dataset = raw_dataset["train"].map(format_prompts)
 
-    print(f"\n🏋️ Step 5: Executing GPU Training Loop ({epochs} Epochs)...")
+    print(f"\n🏋️ Step 5: Executing GPU Training Loop ({epochs} Epochs on {base_model_name})...")
     training_args = TrainingArguments(
         output_dir=output_adapter_dir,
         num_train_epochs=epochs,
@@ -146,6 +146,7 @@ def train_saathi_model(
         lr_scheduler_type="cosine",
         warmup_steps=5,
         fp16=has_cuda,
+        gradient_checkpointing=True,
         logging_steps=5,
         save_strategy="epoch",
         save_total_limit=1,
