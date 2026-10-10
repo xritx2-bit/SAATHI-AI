@@ -689,11 +689,17 @@ if mode == "💬 AI Assistant & Chat":
                     unsafe_allow_html=True
                 )
 
-            st.markdown(msg["content"])
+            # Parse potential CoT thinking traces
+            think_trace, display_content = LocalFineTunedModel.parse_thinking_response(msg["content"])
+            if think_trace:
+                with st.expander("🧠 Gemini 3.7 Thinking Process (CoT Deliberation)", expanded=False):
+                    st.markdown(f'<div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(147, 51, 234, 0.3); border-left: 3px solid #A855F7; padding: 12px 16px; border-radius: 8px; color: #CBD5E1; font-size: 0.88rem; font-family: monospace; white-space: pre-wrap;">{think_trace}</div>', unsafe_allow_html=True)
+            
+            st.markdown(display_content)
 
             # Voice TTS Audio Button
             tts_html = VoiceEngine.generate_browser_speech_html(
-                text=msg["content"],
+                text=display_content,
                 language=lang if "lang" in locals() else "english",
                 button_id=f"tts_{idx}"
             )
@@ -1323,10 +1329,16 @@ elif mode == "🎓 Student Model Training Hub":
                     out_text = LocalFineTunedModel.generate(play_query, temperature=0.1)
                     t_dur = (time.time() - t_start) * 1000
                     st.success(f"⚡ Inferred in **{t_dur:.0f} ms** on local GPU!")
+                    
+                    think_trace, final_ans = LocalFineTunedModel.parse_thinking_response(out_text)
+                    if think_trace:
+                        with st.expander("🧠 Gemini 3.7 Thinking Process (Chain-of-Thought)", expanded=True):
+                            st.markdown(f'<div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-left: 4px solid #A855F7; padding: 14px 18px; border-radius: 10px; color: #CBD5E1; font-size: 0.9rem; font-family: monospace; white-space: pre-wrap;">{think_trace}</div>', unsafe_allow_html=True)
+                    
                     st.markdown(f"""
-                    <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(59, 130, 246, 0.4); border-left: 4px solid #3B82F6; padding: 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; color: #F8FAFC;">
+                    <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(59, 130, 246, 0.4); border-left: 4px solid #3B82F6; padding: 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; color: #F8FAFC; margin-top: 10px;">
                         <strong style="color: #60A5FA;">🤖 Model Response:</strong><br>
-                        {out_text}
+                        {final_ans if think_trace else out_text}
                     </div>
                     """, unsafe_allow_html=True)
                 except Exception as ex:
@@ -1337,11 +1349,11 @@ elif mode == "🎓 Student Model Training Hub":
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
-        ### 🧠 4-Step Training Pipeline
-        1. **Dataset Generation:** Converts verified Indian Q&A pairs into ChatML format (`train.jsonl`).
-        2. **Quantization & LoRA:** Injects low-rank decomposition matrices ($r=16, \alpha=32$) into attention projections.
-        3. **GPU Training:** Executes gradient descent on your local RTX 4050 GPU with loss convergence.
-        4. **Inference & Export:** Deploys the lightweight adapter (`adapter_model.safetensors`, 8.6MB).
+        ### 🧠 Gemini 3.7-Style CoT Reasoning Pipeline
+        1. **Chain-of-Thought Dataset:** Curated multi-domain reasoning pairs with `<think>` tags (`train.jsonl`).
+        2. **Quantization & LoRA:** 4-bit NormalFloat (NF4) with Rank-64 LoRA over Attention & MLP layers.
+        3. **GPU Training:** Cosine learning rate schedule on your local RTX 4050 GPU with loss convergence.
+        4. **Inference & Reasoning:** Live dual-mode thinking & instant decision rendering.
         """)
         if st.button("📁 Generate / Refresh Training Dataset", use_container_width=True):
             from training.prepare_training_data import generate_saathi_training_dataset

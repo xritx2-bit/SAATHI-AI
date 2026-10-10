@@ -76,11 +76,27 @@ class LocalFineTunedModel:
         return _LOCAL_MODEL_INSTANCE, _LOCAL_TOKENIZER_INSTANCE
 
     @classmethod
+    def parse_thinking_response(cls, text: str) -> tuple[str, str]:
+        """
+        Parses Gemini 3.7-style <think>...</think> reasoning traces from final response.
+        Returns: (thinking_trace, final_response)
+        """
+        if "<think>" in text and "</think>" in text:
+            parts = text.split("</think>", 1)
+            think_part = parts[0].replace("<think>", "").strip()
+            final_part = parts[1].strip()
+            return think_part, final_part
+        elif "<think>" in text:
+            parts = text.split("<think>", 1)
+            return parts[1].strip(), ""
+        return "", text.strip()
+
+    @classmethod
     def generate(
         cls,
         user_query: str,
         instruction: Optional[str] = None,
-        max_new_tokens: int = 256,
+        max_new_tokens: int = 512,
         temperature: float = 0.2
     ) -> str:
         """Runs inference using the local fine-tuned model."""
@@ -90,7 +106,10 @@ class LocalFineTunedModel:
         import torch
         model, tokenizer = cls.load_model()
 
-        inst = instruction or "You are SAATHI AI, a safe multilingual assistant for Indian daily life."
+        inst = instruction or (
+            "You are SAATHI AI, a high-efficiency reasoning assistant for Indian governance, "
+            "citizen rights, and welfare schemes. Reason carefully inside <think>...</think> before responding."
+        )
         prompt = f"<|im_start|>system\n{inst}<|im_end|>\n<|im_start|>user\n{user_query}<|im_end|>\n<|im_start|>assistant\n"
 
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
@@ -104,3 +123,4 @@ class LocalFineTunedModel:
         generated_tokens = outputs[0][len(inputs["input_ids"][0]):]
         response = tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
         return response
+

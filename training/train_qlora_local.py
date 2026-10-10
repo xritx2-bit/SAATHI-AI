@@ -1,8 +1,9 @@
 """
-🎓 SAATHI AI - High-Potential Local QLoRA Fine-Tuning Pipeline
+🎓 SAATHI AI - Gemini 3.7 Efficiency & Reasoning QLoRA Fine-Tuning Pipeline
 -------------------------------------------------------------------------
 Optimized for NVIDIA GeForce RTX 4050 (6GB VRAM) & CUDA acceleration.
-Uses 4-bit NormalFloat (NF4) quantization + Rank-64 LoRA over Attention & MLP layers.
+Fine-tunes Qwen2.5-1.5B-Instruct with Gemini 3.7-style Chain-of-Thought (<think>)
+reasoning, 4-bit NormalFloat (NF4) quantization, and Rank-64 LoRA adaptation.
 -------------------------------------------------------------------------
 """
 import os
@@ -21,16 +22,18 @@ def train_saathi_model(
     learning_rate: float = 2e-4,
     lora_rank: int = 64,
     lora_alpha: int = 128,
+    max_seq_length: int = 768,
     dry_run: bool = False
 ):
     print("\n=======================================================")
-    print("🚀 SAATHI AI - High-Potential Model Fine-Tuning (QLoRA)")
+    print("🧠 SAATHI AI - Gemini 3.7-Style CoT Reasoning Training")
     print("=======================================================")
     print(f"Base Architecture: {base_model_name}")
     print(f"Training Dataset:  {data_path}")
     print(f"Output Directory:  {output_adapter_dir}")
     print(f"Epochs:            {epochs}")
     print(f"LoRA Capacity:     Rank r={lora_rank}, Alpha={lora_alpha}")
+    print(f"Max Seq Length:    {max_seq_length} tokens (for deep CoT)")
     print(f"Effective Batch:   {batch_size * gradient_accumulation_steps}")
     print("=======================================================\n")
 
@@ -40,14 +43,13 @@ def train_saathi_model(
         generate_saathi_training_dataset()
 
     if dry_run:
-        print("💡 DRY RUN MODE: Verifying dataset format and training pipeline simulation...")
+        print("💡 DRY RUN MODE: Verifying Gemini 3.7 CoT dataset structure...")
         with open(data_path, "r", encoding="utf-8") as f:
             lines = [json.loads(line) for line in f.readlines()]
         print(f"✅ Verified {len(lines)} training pairs.")
-        print(f"Sample Instruction: {lines[0]['instruction'][:50]}...")
-        print(f"Sample Input:       {lines[0]['input']}")
-        print(f"Sample Output:      {lines[0]['output'][:50]}...")
-        print("\n🎉 Dry run completed successfully! You can run real training with: python3 training/train_qlora_local.py")
+        print(f"Sample Input:  {lines[0]['input']}")
+        print(f"Sample Output: {lines[0]['output'][:80]}...")
+        print("\n🎉 Dry run completed! Run real training with: python3 training/train_qlora_local.py")
         return
 
     # Real Training Imports
@@ -111,7 +113,7 @@ def train_saathi_model(
         model = prepare_model_for_kbit_training(model)
 
     print(f"\n⚙️ Step 3: Configuring Maximum-Potential LoRA (Rank={lora_rank}, Alpha={lora_alpha})...")
-    # Targets all attention projections AND feed-forward MLP projections
+    # Target all attention and feed-forward MLP projections
     target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]
 
     peft_config = LoraConfig(
@@ -126,10 +128,16 @@ def train_saathi_model(
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
 
-    print(f"\n📊 Step 4: Tokenizing Instruction Dataset...")
+    print(f"\n📊 Step 4: Tokenizing Gemini 3.7 CoT Dataset (Max Length = {max_seq_length})...")
     def format_prompts(example):
-        formatted = f"<|im_start|>system\nYou are SAATHI AI, a safe evidence-gated public assistant for Indian citizens.<|im_end|>\n<|im_start|>user\n{example['instruction']}\n\nQuery: {example['input']}<|im_end|>\n<|im_start|>assistant\n{example['output']}<|im_end|>"
-        tokens = tokenizer(formatted, max_length=512, truncation=True, padding="max_length")
+        formatted = (
+            f"<|im_start|>system\n"
+            f"You are SAATHI AI, a high-efficiency reasoning assistant for Indian governance, citizen rights, and welfare schemes. "
+            f"Reason carefully inside <think>...</think> before responding.<|im_end|>\n"
+            f"<|im_start|>user\n{example['instruction']}\n\nQuery: {example['input']}<|im_end|>\n"
+            f"<|im_start|>assistant\n{example['output']}<|im_end|>"
+        )
+        tokens = tokenizer(formatted, max_length=max_seq_length, truncation=True, padding="max_length")
         tokens["labels"] = tokens["input_ids"].copy()
         return tokens
 
@@ -144,7 +152,7 @@ def train_saathi_model(
         gradient_accumulation_steps=gradient_accumulation_steps,
         learning_rate=learning_rate,
         lr_scheduler_type="cosine",
-        warmup_steps=5,
+        warmup_steps=6,
         fp16=has_cuda,
         gradient_checkpointing=True,
         logging_steps=5,
@@ -173,9 +181,11 @@ def train_saathi_model(
     with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump({
             "base_model": base_model_name,
+            "style": "Gemini 3.7 Hybrid Thinking & CoT Efficiency",
             "epochs": epochs,
             "lora_rank": lora_rank,
             "lora_alpha": lora_alpha,
+            "max_seq_length": max_seq_length,
             "train_loss": train_result.training_loss,
             "training_duration_seconds": round(training_duration, 2),
             "device": gpu_name if has_cuda else "CPU",
@@ -183,17 +193,17 @@ def train_saathi_model(
         }, f, indent=2)
 
     print(f"\n=======================================================")
-    print("🎉 FULL POTENTIAL TRAINING COMPLETED SUCCESSFULLY!")
+    print("🎉 GEMINI 3.7-STYLE REASONING TRAINING COMPLETED!")
     print(f"Final Training Loss: {train_result.training_loss:.4f}")
     print(f"Total Time Elapsed:  {training_duration:.1f} seconds")
     print(f"Adapter Saved To:    {output_adapter_dir}")
     print("=======================================================\n")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="SAATHI AI High-Potential Model Fine-Tuning")
+    parser = argparse.ArgumentParser(description="SAATHI AI Gemini 3.7-Style CoT Training")
     parser.add_argument("--dry-run", action="store_true", help="Validate dataset without training")
     parser.add_argument("--epochs", type=int, default=15, help="Number of training epochs")
-    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-0.5B-Instruct", help="Base HuggingFace model")
+    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct", help="Base HuggingFace model")
     parser.add_argument("--rank", type=int, default=64, help="LoRA Rank capacity")
     args = parser.parse_args()
 

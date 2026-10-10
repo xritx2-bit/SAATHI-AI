@@ -53,29 +53,24 @@ Open [http://localhost:8501](http://localhost:8501) in your browser.
 
 ---
 
-## 🎓 Student Model Training Guide (LoRA / QLoRA)
+## 🧠 Gemini 3.7-Style CoT Reasoning Architecture & Fine-Tuning
 
-As a college student, you can train and fine-tune your own AI model easily without paying thousands of dollars!
+SAATHI AI features a local **Gemini 3.7-Style Hybrid Reasoning & Fine-Tuning Pipeline** running on the local **NVIDIA GeForce RTX 4050 Laptop GPU (6GB VRAM)**:
 
-1. **Read the Theory & Viva Notes:**
-   Check out [`training/STUDENT_GUIDE_HOW_TO_TRAIN_YOUR_MODEL.md`](training/STUDENT_GUIDE_HOW_TO_TRAIN_YOUR_MODEL.md).
+- **Base Architecture:** `Qwen/Qwen2.5-1.5B-Instruct` (1.54 Billion parameters)
+- **Quantization:** 4-bit NormalFloat (NF4) with Double Quantization (`bitsandbytes`)
+- **LoRA Configuration:** **Rank $r = 64$**, **$\alpha = 128$**, targeting all 7 attention and MLP layers (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`) with **73.85 Million trainable parameters**.
+- **Reasoning Format:** `<think>...</think>` Chain-of-Thought (CoT) policy verification, legal lookup, and safety checks before final output.
+- **Sequence Length:** 768 tokens with Cosine Annealing Learning Rate scheduling.
 
-2. **Generate the Training Dataset:**
-   ```bash
-   ./venv/bin/python3 training/prepare_training_data.py
-   ```
+```bash
+# 1. Generate Gemini 3.7 CoT Dataset
+./venv/bin/python training/prepare_training_data.py
 
-3. **Verify with Dry Run:**
-   ```bash
-   ./venv/bin/python3 training/train_qlora_local.py --dry-run
-   ```
+# 2. Train QLoRA Adapter on GPU
+./venv/bin/python training/train_qlora_local.py --epochs 12
 
-4. **Fine-Tune the Model on RTX 4050:**
-   ```bash
-   ./venv/bin/python3 training/train_qlora_local.py --epochs 3
-   ```
+# 3. Test Inferences with Thinking Traces
+./venv/bin/python training/test_fine_tuned_model.py
+```
 
-5. **Test Your Trained Model:**
-   ```bash
-   ./venv/bin/python3 training/test_fine_tuned_model.py
-   ```
