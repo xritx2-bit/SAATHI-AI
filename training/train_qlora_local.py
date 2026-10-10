@@ -14,7 +14,7 @@ import argparse
 import json
 
 def train_saathi_model(
-    base_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct",
+    base_model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
     data_path: str = "data/training_data/train.jsonl",
     output_adapter_dir: str = "training/saathi_lora_adapter",
     epochs: int = 3,
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="SAATHI AI Model Fine-Tuning")
     parser.add_argument("--dry-run", action="store_true", help="Validate dataset and pipeline without downloading weights")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
-    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct", help="Base HuggingFace model")
+    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-0.5B-Instruct", help="Base HuggingFace model")
     args = parser.parse_args()
 
     train_saathi_model(base_model_name=args.model, epochs=args.epochs, dry_run=args.dry_run)
