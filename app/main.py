@@ -13,12 +13,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from saathi.controller.engine import SaathiController
 from saathi.knowledge.store import KnowledgeStore
+from saathi.knowledge.doc_parser import DocumentParser
 from saathi.models import DecisionType
 from saathi.tools.calculators import UtilityCalculators
 from saathi.tools.letter_exporter import LetterExporter
 from saathi.voice.speech import VoiceEngine
 from saathi.db.chat_history import ChatHistoryManager
 from saathi.auth.firebase_auth import FirebaseAuthService
+from saathi.llm.local_model import LocalFineTunedModel
+
 
 # Streamlit Page Config
 st.set_page_config(
@@ -280,6 +283,29 @@ mode = st.sidebar.radio(
     ]
 )
 
+st.sidebar.divider()
+
+# Active Intelligence Engine Selector
+st.sidebar.markdown("### 🧠 Active Intelligence Engine")
+adapter_exists = LocalFineTunedModel.is_available()
+engine_options = [
+    "⚡ Deterministic Controller (100% Offline RAG)",
+    "🎯 Fine-Tuned Model (Qwen2.5-0.5B + LoRA on RTX 4050)" if adapter_exists else "🎯 Fine-Tuned Model (Adapter Pending)",
+    "☁️ Cloud Hybrid (Gemini 2.5 API)"
+]
+selected_engine = st.sidebar.selectbox("Inference Engine:", engine_options, index=1 if adapter_exists else 0)
+
+if "Fine-Tuned" in selected_engine and adapter_exists:
+    active_llm_provider = "local_lora"
+    st.sidebar.success("🟢 GPU LoRA Adapter Ready")
+elif "Cloud" in selected_engine:
+    active_llm_provider = "gemini"
+    st.sidebar.info("☁️ Cloud API Active")
+else:
+    active_llm_provider = "auto"
+    st.sidebar.caption("⚡ Offline Rule-Gated RAG")
+
+
 # ==========================================
 # HERO BANNER (TOP OF APPLICATION)
 # ==========================================
@@ -318,6 +344,49 @@ if mode == "💬 AI Assistant & Chat":
             st.session_state.selected_quick_prompt = "Landlord refusing to return security deposit deducting 15000 for paint what to do?"
 
     st.markdown("<hr style='margin: 18px 0; border-color: #E2E8F0;'>", unsafe_allow_html=True)
+
+    # Document & Bill Scanner Expander
+    with st.expander("📄 Scan / Parse Utility Bill or Rent Notice (Structured Field Parser)"):
+        st.write("Paste your bill / notice text or upload a file to extract key account details, meter readings, and audit your tariff automatically.")
+        uploaded_bill_file = st.file_uploader("Upload Bill / Document (.txt)", type=["txt", "csv", "json"], key="bill_uploader")
+        doc_raw_text = st.text_area(
+            "Or Paste Bill / Notice Text directly:",
+            height=90,
+            placeholder="Example: CA No: 102938475, Units: 420 kWh, Total Amount: Rs 3450, Due Date: 25/11/2026, IDF Defective Reading...",
+            key="pasted_bill_text"
+        )
+        if uploaded_bill_file:
+            try:
+                doc_raw_text = uploaded_bill_file.read().decode("utf-8")
+            except Exception:
+                pass
+
+        if doc_raw_text.strip():
+            parsed_elec = DocumentParser.extract_electricity_bill_fields(doc_raw_text)
+            parsed_lpg = DocumentParser.extract_lpg_receipt_fields(doc_raw_text)
+            parsed_rent = DocumentParser.extract_rent_fields(doc_raw_text)
+            
+            col_p1, col_p2, col_p3 = st.columns(3)
+            with col_p1:
+                st.markdown("**⚡ Electricity Fields:**")
+                st.write(f"• **CA / Account:** `{parsed_elec['consumer_number'] or 'N/A'}`")
+                st.write(f"• **Units Billed:** `{parsed_elec['units_consumed'] or 'N/A'} kWh`")
+                st.write(f"• **Amount:** `₹{parsed_elec['total_amount'] or 'N/A'}`")
+                if parsed_elec['is_average_or_idf']:
+                    st.warning("⚠️ IDF / Average estimated reading flagged!")
+            with col_p2:
+                st.markdown("**🔥 LPG Cylinder Fields:**")
+                st.write(f"• **17-Digit ID:** `{parsed_lpg['consumer_id_17_digit'] or 'N/A'}`")
+                st.write(f"• **Agency:** `{parsed_lpg['distributor_name'] or 'N/A'}`")
+                st.write(f"• **Order Ref:** `{parsed_lpg['order_number'] or 'N/A'}`")
+            with col_p3:
+                st.markdown("**🏠 Tenancy / Rent Fields:**")
+                st.write(f"• **Rent:** `₹{parsed_rent['monthly_rent'] or 'N/A'}`")
+                st.write(f"• **Deposit:** `₹{parsed_rent['security_deposit'] or 'N/A'}`")
+
+            if st.button("⚡ Send Extracted Bill Details to SAATHI to Audit", key="btn_audit_bill", use_container_width=True):
+                st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF Flag: {parsed_elec['is_average_or_idf']}."
+                st.rerun()
 
     # Load session messages
     current_session_messages = st.session_state.db.get_session_messages(st.session_state.current_session_id)
@@ -416,8 +485,12 @@ if mode == "💬 AI Assistant & Chat":
             st.session_state.db.update_session_title(st.session_state.current_session_id, prompt_input[:26])
 
         with st.spinner("Analyzing intent, verifying official evidence & applying safety policies..."):
-            # Passes current conversation history for multi-turn context resolution
-            decision_result = st.session_state.controller.process_query(prompt_input, current_session_messages)
+            # Passes current conversation history and active intelligence engine
+            decision_result = st.session_state.controller.process_query(
+                prompt_input,
+                current_session_messages,
+                llm_provider=active_llm_provider
+            )
 
         st.session_state.db.save_message(
             session_id=st.session_state.current_session_id,
@@ -428,6 +501,7 @@ if mode == "💬 AI Assistant & Chat":
             action=decision_result.proposed_action
         )
         st.rerun()
+
 
 # ==========================================
 # TAB 2: SMART UTILITY CALCULATORS
@@ -724,16 +798,72 @@ elif mode == "📊 Live Research Benchmarks":
 # ==========================================
 elif mode == "🎓 Student Model Training Hub":
     st.markdown("## 🎓 Student Model Fine-Tuning Hub")
-    st.write("Learn how to fine-tune your own AI model on your **RTX 4050 GPU (6GB VRAM)** or on **Google Colab**.")
+    st.write("Train and test your own domain-adapted AI model locally on your **NVIDIA GeForce RTX 4050 GPU (6GB VRAM)** or on **Google Colab**.")
+
+    adapter_ready = LocalFineTunedModel.is_available()
+    
+    # Model Specs & Status Banner
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 18px 24px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h4 style="margin: 0; color: #F8FAFC;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
+                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.88rem;">QLoRA Rank: r=16, Alpha=32 • Trainable Parameters: 2.16M (0.4359%) • Target: q, k, v, o projections</p>
+            </div>
+            <div>
+                <span style="background: {'#065F46' if adapter_ready else '#991B1B'}; color: {'#A7F3D0' if adapter_ready else '#FECACA'}; font-weight: 700; padding: 6px 14px; border-radius: 9999px; font-size: 0.85rem;">
+                    {'✅ LoRA Adapter Trained & Ready' if adapter_ready else '⚠️ LoRA Adapter Not Found'}
+                </span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Live Interactive Playground
+    st.subheader("🔥 Live Interactive Playground: Test Your Fine-Tuned Model")
+    st.write("Run real-time inference through your local GPU-accelerated LoRA adapter:")
+    
+    col_play1, col_play2 = st.columns([3, 1])
+    with col_play1:
+        play_query = st.text_input(
+            "Test Query / Prompt:",
+            value="Mera bijli ka bill bahut jyada aaya hai meter kharab lagta hai",
+            key="playground_query"
+        )
+    with col_play2:
+        st.write("")
+        st.write("")
+        run_btn = st.button("🚀 Run Local GPU Model", type="primary", use_container_width=True)
+
+    if run_btn:
+        if not adapter_ready:
+            st.error("Please run the training script first to generate your LoRA adapter weights!")
+        else:
+            with st.spinner("Executing forward pass on NVIDIA GeForce RTX 4050 GPU..."):
+                t_start = time.time()
+                try:
+                    out_text = LocalFineTunedModel.generate(play_query, temperature=0.1)
+                    t_dur = (time.time() - t_start) * 1000
+                    st.success(f"⚡ Inferred in **{t_dur:.0f} ms** on local GPU!")
+                    st.markdown(f"""
+                    <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-left: 4px solid #3B82F6; padding: 16px; border-radius: 8px; font-size: 0.95rem; line-height: 1.6;">
+                        <strong>🤖 Model Response:</strong><br>
+                        {out_text}
+                    </div>
+                    """, unsafe_allow_html=True)
+                except Exception as ex:
+                    st.error(f"Inference error: {ex}")
+
+    st.markdown("<hr style='margin: 24px 0;'>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
         ### 🧠 4-Step Training Pipeline
         1. **Dataset Generation:** Converts verified Indian Q&A pairs into ChatML format (`train.jsonl`).
-        2. **Quantization (4-Bit):** Compresses base model from 16GB to 3.5GB to fit in RTX 4050 6GB VRAM.
-        3. **LoRA Adapters:** Trains only 1% of parameters without corrupting base knowledge.
-        4. **Inference & Merge:** Uses the fine-tuned adapter directly in SAATHI AI!
+        2. **Quantization & LoRA:** Injects low-rank decomposition matrices ($r=16, \alpha=32$) into attention projections.
+        3. **GPU Training:** Executes gradient descent on your local RTX 4050 GPU with loss convergence.
+        4. **Inference & Export:** Deploys the lightweight adapter (`adapter_model.safetensors`, 8.6MB).
         """)
         if st.button("📁 Generate / Refresh Training Dataset", use_container_width=True):
             from training.prepare_training_data import generate_saathi_training_dataset
@@ -753,8 +883,8 @@ elif mode == "🎓 Student Model Training Hub":
 # 1. Quick Dry-Run (Verifies dataset format):
 python3 training/train_qlora_local.py --dry-run
 
-# 2. Start Real Local Training on RTX 4050:
-python3 training/train_qlora_local.py --epochs 3
+# 2. Start Real Local Training on RTX 4050 (15 Epochs):
+python3 training/train_qlora_local.py --epochs 15
 
 # 3. Test Your Fine-Tuned Model:
 python3 training/test_fine_tuned_model.py

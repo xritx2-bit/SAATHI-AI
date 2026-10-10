@@ -15,16 +15,22 @@ from saathi.controller.context_manager import ConversationContextManager
 from saathi.llm.client import LLMClient
 
 class SaathiController:
-    def __init__(self, knowledge_store: Optional[KnowledgeStore] = None):
+    def __init__(self, knowledge_store: Optional[KnowledgeStore] = None, llm_provider: str = "auto"):
         self.knowledge_store = knowledge_store or KnowledgeStore()
         self.retriever = HybridRetriever(self.knowledge_store)
-        self.llm = LLMClient()
+        self.llm = LLMClient(provider=llm_provider)
 
-    def process_query(self, user_query: str, chat_history: Optional[List[Dict[str, Any]]] = None) -> ControllerDecision:
+    def process_query(
+        self,
+        user_query: str,
+        chat_history: Optional[List[Dict[str, Any]]] = None,
+        llm_provider: Optional[str] = None
+    ) -> ControllerDecision:
         """
         Main Controller entry point. Evaluates user input through the multi-stage policy:
         1. Context Enrichment -> 2. Safety Gate -> 3. Language Routing -> 4. Intent Check -> 5. Retrieval -> 6. Action Drafting
         """
+        active_llm = LLMClient(provider=llm_provider) if llm_provider else self.llm
         # 0. Context enrichment from previous conversation turns
         if chat_history:
             user_query = ConversationContextManager.enrich_query_with_context(user_query, chat_history)

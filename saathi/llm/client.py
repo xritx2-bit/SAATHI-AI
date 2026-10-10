@@ -28,6 +28,16 @@ class LLMClient:
         Generates a response from the configured LLM backend.
         Falls back seamlessly to local heuristic synthesis if API is unavailable.
         """
+        # Local Fine-Tuned LoRA Model (RTX 4050 GPU / Local inference)
+        if self.provider == "local_lora":
+            try:
+                from saathi.llm.local_model import LocalFineTunedModel
+                if LocalFineTunedModel.is_available():
+                    full_query = f"{prompt}\n\nEvidence Context:\n{context_evidence}" if context_evidence else prompt
+                    return LocalFineTunedModel.generate(full_query, instruction=system_instruction, temperature=temperature)
+            except Exception:
+                pass
+
         # Use Google Gemini REST API directly with requests (100% reliable, zero SDK dependency issues)
         if self.gemini_api_key and (self.provider in ["auto", "gemini"]):
             try:

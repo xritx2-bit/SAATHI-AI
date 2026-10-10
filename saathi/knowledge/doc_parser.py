@@ -66,3 +66,52 @@ class DocumentParser:
             data["is_average_or_idf"] = True
 
         return data
+
+    @staticmethod
+    def extract_lpg_receipt_fields(text: str) -> Dict[str, Any]:
+        """Extracts structured fields from LPG cylinder booking / subsidy cash memos."""
+        data = {
+            "consumer_id_17_digit": None,
+            "distributor_name": None,
+            "order_number": None,
+            "subsidy_amount": None,
+            "total_amount": None
+        }
+        lpg_id = re.search(r'(?:LPG\s*ID|Consumer\s*ID)[:.\s]*([0-9]{16,17})', text, re.IGNORECASE)
+        if lpg_id:
+            data["consumer_id_17_digit"] = lpg_id.group(1).strip()
+
+        order_no = re.search(r'(?:Order\s*No|Booking\s*Ref|Ref\s*No)[:.\s]*([A-Z0-9]+)', text, re.IGNORECASE)
+        if order_no:
+            data["order_number"] = order_no.group(1).strip()
+
+        dist = re.search(r'(?:Agency|Distributor|Gas\s*Agency)[:.\s]*([A-Za-z\s]+)', text, re.IGNORECASE)
+        if dist:
+            data["distributor_name"] = dist.group(1).strip()
+
+        return data
+
+    @staticmethod
+    def extract_rent_fields(text: str) -> Dict[str, Any]:
+        """Extracts structured fields from rental agreements and security deposit receipts."""
+        data = {
+            "monthly_rent": None,
+            "security_deposit": None,
+            "property_type": "residential",
+            "notice_period_months": 1
+        }
+        rent_match = re.search(r'(?:Monthly\s*Rent|Rent)[:.\s]*(?:Rs\.?|₹)?\s*([0-9,]+)', text, re.IGNORECASE)
+        if rent_match:
+            try:
+                data["monthly_rent"] = float(rent_match.group(1).replace(",", ""))
+            except ValueError:
+                pass
+
+        dep_match = re.search(r'(?:Security\s*Deposit|Deposit\s*Amount)[:.\s]*(?:Rs\.?|₹)?\s*([0-9,]+)', text, re.IGNORECASE)
+        if dep_match:
+            try:
+                data["security_deposit"] = float(dep_match.group(1).replace(",", ""))
+            except ValueError:
+                pass
+
+        return data
