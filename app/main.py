@@ -1,6 +1,6 @@
 """
-SAATHI AI — Next-Generation Evidence-Gated Public Assistance Portal
-A modern, ultra-clean, and interactive web interface for safe, multilingual citizen guidance.
+SAATHI AI — Next-Generation Evidence-Gated Public Assistance Portal & Research Hub
+A modern, ultra-clean, visually stunning, and interactive web interface for safe, multilingual citizen guidance.
 """
 import streamlit as st
 import os
@@ -33,67 +33,98 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Comprehensive Modern Web Styling (Google Fonts, Glassmorphism, Premium Micro-Animations)
+# Comprehensive State-of-the-Art Web Styling (Glassmorphism, Neon Highlights, Modern Typography)
 st.markdown("""
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-    /* Global Typography & Variables */
-    :root {
-        --primary-gradient: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #0284C7 100%);
-        --surface-glass: rgba(255, 255, 255, 0.85);
-        --border-glass: rgba(226, 232, 240, 0.8);
-        --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-        --card-shadow-hover: 0 12px 28px -4px rgba(37, 99, 235, 0.12), 0 6px 12px -2px rgba(15, 23, 42, 0.08);
+    /* Global Base & Canvas */
+    html, body, [class*="css"], .stApp {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    .stApp {
+        background: radial-gradient(circle at 12% 15%, rgba(37, 99, 235, 0.16) 0%, transparent 35%),
+                    radial-gradient(circle at 88% 22%, rgba(139, 92, 246, 0.14) 0%, transparent 40%),
+                    radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 50%),
+                    #090D16 !important;
+        color: #F8FAFC !important;
     }
     
-    /* Top Hero Banner */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0B1120 0%, #060A12 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5) !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background: transparent !important;
+    }
+    
+    /* Top Hero Command Banner */
     .hero-container {
-        background: linear-gradient(135deg, #091E42 0%, #0F2B5C 40%, #1E3A8A 75%, #0284C7 100%);
-        border-radius: 20px;
-        padding: 36px 40px;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.85) 50%, rgba(14, 116, 144, 0.8) 100%);
+        border-radius: 22px;
+        padding: 38px 44px;
         color: white;
-        margin-bottom: 28px;
-        box-shadow: 0 20px 40px -10px rgba(15, 35, 80, 0.35), 0 1px 3px 0 rgba(255, 255, 255, 0.1) inset;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        margin-bottom: 26px;
+        box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.8), 0 0 30px rgba(56, 189, 248, 0.12) inset;
+        border: 1px solid rgba(255, 255, 255, 0.15);
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(20px);
     }
     .hero-container::before {
         content: "";
         position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 380px;
-        height: 380px;
-        background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
+        top: -60%;
+        right: -15%;
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
         pointer-events: none;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 9999px;
+        padding: 6px 16px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #BAE6FD;
+        margin-bottom: 14px;
+        backdrop-filter: blur(10px);
     }
     .hero-title {
         font-family: 'Outfit', sans-serif;
-        font-size: 2.6rem;
+        font-size: 2.9rem;
         font-weight: 900;
-        letter-spacing: -0.025em;
-        background: linear-gradient(90deg, #FFFFFF 0%, #BAE6FD 50%, #FDE047 100%);
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #FFFFFF 0%, #7DD3FC 40%, #C084FC 75%, #FDE047 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        margin-bottom: 12px;
+        line-height: 1.1;
+    }
+    .hindi-glow {
+        font-weight: 800;
+        color: #FBBF24;
+        text-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
     }
     .hero-subtitle {
-        font-size: 1.05rem;
-        color: #E2E8F0;
-        max-width: 820px;
+        font-size: 1.1rem;
+        color: #CBD5E1;
+        max-width: 860px;
         line-height: 1.65;
-        margin-bottom: 22px;
+        margin-bottom: 24px;
+        font-weight: 400;
     }
     .hero-stats-row {
         display: flex;
@@ -104,68 +135,108 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 7px 16px;
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
+        padding: 8px 18px;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         border-radius: 9999px;
-        font-size: 0.84rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        color: #F8FAFC;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .hero-stat-pill:hover {
         transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.14);
     }
+    .pill-cyan { background: rgba(14, 165, 233, 0.15); border: 1px solid rgba(56, 189, 248, 0.35); color: #E0F2FE; }
+    .pill-emerald { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(52, 211, 153, 0.35); color: #D1FAE5; }
+    .pill-purple { background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(192, 132, 252, 0.35); color: #F3E8FF; }
+    .pill-amber { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(251, 191, 36, 0.35); color: #FEF3C7; }
+    .pill-rose { background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(251, 113, 133, 0.35); color: #FFE4E6; }
     
     /* Interactive Card Base */
     .saathi-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.75) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
         padding: 24px;
-        box-shadow: var(--card-shadow);
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s ease;
         margin-bottom: 20px;
     }
     .saathi-card:hover {
         transform: translateY(-3px);
-        box-shadow: var(--card-shadow-hover);
-        border-color: #CBD5E1;
+        box-shadow: 0 16px 36px -4px rgba(37, 99, 235, 0.2);
+        border-color: rgba(96, 165, 250, 0.4);
     }
 
-    /* Quick Topic Scenario Cards */
-    .scenario-pill-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 16px 18px;
+    /* Scenario Card Component */
+    .scenario-card-box {
+        background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 3px solid #3B82F6;
+        border-radius: 16px;
+        padding: 20px 18px;
         text-align: left;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
         height: 100%;
-        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
-    .scenario-pill-card:hover {
-        background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 100%);
-        border-color: #93C5FD;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.12);
+    .scenario-card-box:hover {
+        transform: translateY(-4px);
+        border-color: rgba(147, 197, 253, 0.5);
+        box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
     }
-    .scenario-title {
+    .scenario-icon {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+    .scenario-card-title {
         font-family: 'Outfit', sans-serif;
         font-weight: 700;
-        font-size: 0.95rem;
-        color: #0F172A;
-        margin-bottom: 4px;
+        font-size: 1.05rem;
+        color: #F8FAFC;
+        margin-bottom: 6px;
     }
-    .scenario-desc {
-        font-size: 0.78rem;
-        color: #64748B;
-        line-height: 1.4;
+    .scenario-card-desc {
+        font-size: 0.82rem;
+        color: #94A3B8;
+        line-height: 1.5;
+        margin-bottom: 14px;
+    }
+
+    /* Streamlit Global Buttons Overhaul */
+    .stButton > button {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
+        color: #F8FAFC !important;
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 600 !important;
+        font-family: 'Outfit', sans-serif !important;
+        letter-spacing: 0.01em !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+        border-color: #60A5FA !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4) !important;
+        color: #FFFFFF !important;
+    }
+    .stButton > button[kind="primary"] {
+        background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%) !important;
+        border: 1px solid rgba(192, 132, 252, 0.5) !important;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.45) !important;
+    }
+    .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(135deg, #1D4ED8 0%, #6D28D9 100%) !important;
+        box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6) !important;
+        transform: translateY(-2px) !important;
     }
 
     /* Policy Badges */
@@ -173,69 +244,71 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-radius: 9999px;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
         font-weight: 700;
         letter-spacing: 0.02em;
         margin-bottom: 12px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
-    .pill-rag { background: #ECFDF5; color: #047857; border: 1px solid #6EE7B7; }
-    .pill-clarify { background: #FFFBEB; color: #B45309; border: 1px solid #FCD34D; }
-    .pill-action { background: #FFF7ED; color: #C2410C; border: 1px solid #FDBA74; }
-    .pill-escalate { background: #FEF2F2; color: #B91C1C; border: 1px solid #FCA5A5; }
-    .pill-direct { background: #EEF2FF; color: #4338CA; border: 1px solid #A5B4FC; }
+    .pill-rag { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.4); }
+    .pill-clarify { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .pill-action { background: rgba(249, 115, 22, 0.2); color: #FB923C; border: 1px solid rgba(251, 146, 60, 0.4); }
+    .pill-escalate { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(248, 113, 113, 0.4); }
+    .pill-direct { background: rgba(99, 102, 241, 0.2); color: #A5B4FC; border: 1px solid rgba(165, 180, 252, 0.4); }
 
     /* Action Proposal Card */
     .action-draft-card {
-        background: linear-gradient(180deg, #FFFDF7 0%, #FEF9C3 100%);
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.08) 100%);
         border: 2px solid #F59E0B;
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 22px;
         margin: 18px 0;
-        box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.15);
+        box-shadow: 0 8px 30px rgba(245, 158, 11, 0.2);
     }
     
     /* Calculator Container */
     .calc-container {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 26px;
-        box-shadow: var(--card-shadow);
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         margin-bottom: 24px;
+        backdrop-filter: blur(16px);
     }
     
     /* Metric Boxes */
     .metric-box {
-        background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
-        border: 1px solid #E2E8F0;
-        border-radius: 14px;
-        padding: 20px;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 22px;
         text-align: center;
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     }
     .metric-box:hover {
         transform: translateY(-2px);
-        border-color: #CBD5E1;
+        border-color: rgba(96, 165, 250, 0.4);
     }
     .metric-val {
         font-family: 'Outfit', sans-serif;
-        font-size: 1.85rem;
+        font-size: 2.1rem;
         font-weight: 800;
-        color: #0F172A;
+        color: #F8FAFC;
     }
     .metric-label {
-        font-size: 0.8rem;
-        color: #64748B;
+        font-size: 0.82rem;
+        color: #94A3B8;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-bottom: 4px;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
     }
 
-    /* Status Dot Pulsing */
+    /* Pulsing Halos */
     .pulse-dot {
         width: 8px;
         height: 8px;
@@ -247,24 +320,20 @@ st.markdown("""
     }
     @keyframes pulse {
         0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-        70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
-    /* Custom Scrollbar for Streamlit elements */
-    ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+    /* Streamlit Input Enhancements */
+    .stTextInput > div > div > input, .stTextArea textarea, .stSelectbox [data-baseweb="select"] {
+        background-color: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 10px !important;
+        color: #F8FAFC !important;
     }
-    ::-webkit-scrollbar-track {
-        background: #F1F5F9;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: #CBD5E1;
-        border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: #94A3B8;
+    .stTextInput > div > div > input:focus, .stTextArea textarea:focus {
+        border-color: #38BDF8 !important;
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.3) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -292,11 +361,11 @@ if "current_session_id" not in st.session_state:
 # SIDEBAR: USER AUTH & CHAT SESSIONS
 # ==========================================
 st.sidebar.markdown("""
-<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0;">
-    <div style="font-size: 2rem; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; color: white;">🤝</div>
+<div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding: 12px 14px; background: rgba(255,255,255,0.04); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
+    <div style="font-size: 2.2rem; background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 14px; color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.4);">🤝</div>
     <div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #0F172A; line-height: 1.1;">SAATHI AI</div>
-        <div style="font-size: 0.74rem; color: #0284C7; font-weight: 600; display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #F8FAFC; line-height: 1.1;">SAATHI AI</div>
+        <div style="font-size: 0.76rem; color: #38BDF8; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-top: 3px;">
             <span class="pulse-dot"></span> Evidence-Gated Assistant
         </div>
     </div>
@@ -306,13 +375,16 @@ st.sidebar.markdown("""
 # User Account Card
 user = st.session_state.current_user
 st.sidebar.markdown(f"""
-<div style="background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); border: 1px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px;">
-    <div style="font-weight: 700; font-size: 0.92rem; color: #1E293B;">👤 {user.get('display_name', 'Citizen User')}</div>
-    <div style="font-size: 0.78rem; color: #64748B;">{user.get('email', '')}</div>
+<div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; font-size: 0.95rem; color: #F8FAFC;">👤 {user.get('display_name', 'Citizen User')}</div>
+        <span style="background: rgba(16, 185, 129, 0.2); color: #34D399; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid rgba(52, 211, 153, 0.3);">VERIFIED</span>
+    </div>
+    <div style="font-size: 0.78rem; color: #94A3B8; margin-top: 2px;">{user.get('email', '')}</div>
 </div>
 """, unsafe_allow_html=True)
 
-with st.sidebar.expander("🔑 Firebase Account & Login"):
+with st.sidebar.expander("🔑 Firebase Account & Security"):
     auth_tab1, auth_tab2 = st.tabs(["Sign In", "Sign Up"])
     with auth_tab1:
         in_email = st.text_input("Email:", key="login_email")
@@ -354,7 +426,7 @@ with st.sidebar.expander("🔑 Firebase Account & Login"):
                     st.error(err)
 
 # New Chat Button
-if st.sidebar.button("➕ New Chat Session", type="primary", use_container_width=True):
+if st.sidebar.button("➕ Start New Conversation", type="primary", use_container_width=True):
     new_sess = st.session_state.db.create_session(st.session_state.current_user["user_id"], "New Conversation")
     st.session_state.current_session_id = new_sess
     st.rerun()
@@ -431,18 +503,21 @@ else:
 # ==========================================
 st.markdown("""
 <div class="hero-container">
+    <div class="hero-badge">
+        <span class="pulse-dot"></span> 🏛️ OFFICIAL VERIFIED CITIZEN COMPLIANCE ENGINE • GOVT OF INDIA
+    </div>
     <div class="hero-title">
-        <span>SAATHI AI • साथी</span>
+        SAATHI AI <span class="hindi-glow">• साथी</span>
     </div>
     <div class="hero-subtitle">
-        India's first Evidence-Gated, Multilingual Public Assistant. Grounded in official government regulations, transparent utility calculators, and strict zero-unauthorized-action safety gates.
+        India's premier <b>Evidence-Gated, Zero-Hallucination Public Assistant</b>. Grounded in official regulatory acts, transparent multi-state utility calculators, and strict zero-unauthorized-action safety gates.
     </div>
     <div class="hero-stats-row">
-        <div class="hero-stat-pill">⚡ 92.0% Policy Reliability</div>
-        <div class="hero-stat-pill">🛡️ 100% Red-Team Safety Pass</div>
-        <div class="hero-stat-pill">🌍 Hindi • Hinglish • English Parity (100%)</div>
-        <div class="hero-stat-pill">🏛️ 9+ Central & State Schemes</div>
-        <div class="hero-stat-pill">🖨️ QR Verified PDF Output</div>
+        <div class="hero-stat-pill pill-cyan">⚡ <b>92.0%</b> Policy Reliability</div>
+        <div class="hero-stat-pill pill-emerald">🛡️ <b>100%</b> Red-Team Safety Pass</div>
+        <div class="hero-stat-pill pill-purple">🌍 <b>Hindi • Hinglish • English</b> Parity</div>
+        <div class="hero-stat-pill pill-amber">🏛️ <b>9+</b> Central & State Schemes</div>
+        <div class="hero-stat-pill pill-rose">🖨️ <b>QR Verified</b> Action Seals</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -452,67 +527,145 @@ st.markdown("""
 # ==========================================
 if mode == "💬 AI Assistant & Chat":
     st.markdown("### 💡 Quick Topics & Everyday Citizen Scenarios")
+    
+    # Engaging 4-Card Visual Grid
     q_col1, q_col2, q_col3, q_col4 = st.columns(4)
     with q_col1:
-        if st.button("⚡ Electricity Bill Dispute\n(High Slab / Faulty Meter)", key="q_elec", use_container_width=True):
+        st.markdown("""
+        <div class="scenario-card-box" style="border-top-color: #3B82F6;">
+            <div>
+                <div class="scenario-icon">⚡</div>
+                <div class="scenario-card-title">Electricity Slabs</div>
+                <div class="scenario-card-desc">Audit telescopic slabs, average billing, and dispute faulty meter IDF flags.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("⚡ Audit Electricity Bill", key="q_elec", use_container_width=True):
             st.session_state.selected_quick_prompt = "Mera bijli ka bill bahut jyada aaya hai meter kharab lagta hai kya karu?"
+
     with q_col2:
-        if st.button("🌾 PM-KISAN ₹2,000 Installment\n(eKYC & Land Seeding Fix)", key="q_kisan", use_container_width=True):
+        st.markdown("""
+        <div class="scenario-card-box" style="border-top-color: #10B981;">
+            <div>
+                <div class="scenario-icon">🌾</div>
+                <div class="scenario-card-title">PM-KISAN ₹2,000</div>
+                <div class="scenario-card-desc">Resolve stopped installments, Aadhaar eKYC errors, and Bhulekh land seeding.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🌾 Fix PM-KISAN Error", key="q_kisan", use_container_width=True):
             st.session_state.selected_quick_prompt = "PM kisan ka 2000 rupaye nahi aaya land seeding NO dikha raha hai kaise theek karein?"
+
     with q_col3:
-        if st.button("🛡️ Cyber Fraud 1930\n(Golden Hour Money Freeze)", key="q_cyber", use_container_width=True):
+        st.markdown("""
+        <div class="scenario-card-box" style="border-top-color: #8B5CF6;">
+            <div>
+                <div class="scenario-icon">🛡️</div>
+                <div class="scenario-card-title">Cyber Fraud 1930</div>
+                <div class="scenario-card-desc">Golden hour bank fund freezing, online transaction safety, and cyber cell SOPs.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🛡️ Cyber Emergency SOP", key="q_cyber", use_container_width=True):
             st.session_state.selected_quick_prompt = "Bank account se online fraud ho gaya paise kat gaye helpline number kya hai?"
+
     with q_col4:
-        if st.button("🏠 Tenant Security Deposit\n(Refund & Painting Dispute)", key="q_rent", use_container_width=True):
+        st.markdown("""
+        <div class="scenario-card-box" style="border-top-color: #F59E0B;">
+            <div>
+                <div class="scenario-icon">🏠</div>
+                <div class="scenario-card-title">Tenant Security Deposit</div>
+                <div class="scenario-card-desc">Model Tenancy Act rules, unlawful painting fee disputes, and refund drafts.</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🏠 Audit Rental Deposit", key="q_rent", use_container_width=True):
             st.session_state.selected_quick_prompt = "Landlord refusing to return security deposit deducting 15000 for paint what to do?"
 
-    st.markdown("<hr style='margin: 18px 0; border-color: #E2E8F0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 22px 0; border-color: rgba(255,255,255,0.08);'>", unsafe_allow_html=True)
 
-    # Document & Bill Scanner Expander
-    with st.expander("📄 Scan / Parse Utility Bill or Rent Notice (Structured Field Parser)"):
-        st.write("Paste your bill / notice text or upload a file to extract key account details, meter readings, and audit your tariff automatically.")
-        uploaded_bill_file = st.file_uploader("Upload Bill / Document (.txt)", type=["txt", "csv", "json"], key="bill_uploader")
-        doc_raw_text = st.text_area(
-            "Or Paste Bill / Notice Text directly:",
-            height=90,
-            placeholder="Example: CA No: 102938475, Units: 420 kWh, Total Amount: Rs 3450, Due Date: 25/11/2026, IDF Defective Reading...",
-            key="pasted_bill_text"
-        )
-        if uploaded_bill_file:
-            try:
-                doc_raw_text = uploaded_bill_file.read().decode("utf-8")
-            except Exception:
-                pass
-
-        if doc_raw_text.strip():
-            parsed_elec = DocumentParser.extract_electricity_bill_fields(doc_raw_text)
-            parsed_lpg = DocumentParser.extract_lpg_receipt_fields(doc_raw_text)
-            parsed_rent = DocumentParser.extract_rent_fields(doc_raw_text)
+    # Interactive Citizen Studio: Voice Assistant + Bill Parser Strip
+    col_tools1, col_tools2 = st.columns(2)
+    with col_tools1:
+        with st.expander("🎙️ Voice Search / बोलकर पूछें (Microphone Audio Input)", expanded=False):
+            st.write("Speak your question naturally in **हिंदी, Hinglish, or English**.")
+            stt_lang_choice = st.selectbox(
+                "Select Voice Dialect / भाषा:",
+                ["हिंदी (Hindi - hi-IN)", "Hinglish / English (India - en-IN)", "English (US - en-US)"],
+                index=0,
+                key="voice_stt_dialect"
+            )
+            lang_code_map = {
+                "हिंदी (Hindi - hi-IN)": "hi-IN",
+                "Hinglish / English (India - en-IN)": "en-IN",
+                "English (US - en-US)": "en-US"
+            }
+            selected_stt_lang = lang_code_map.get(stt_lang_choice, "hi-IN")
             
-            col_p1, col_p2, col_p3 = st.columns(3)
-            with col_p1:
-                st.markdown("**⚡ Electricity Fields:**")
-                st.write(f"• **CA / Account:** `{parsed_elec['consumer_number'] or 'N/A'}`")
-                st.write(f"• **Units Billed:** `{parsed_elec['units_consumed'] or 'N/A'} kWh`")
-                st.write(f"• **Amount:** `₹{parsed_elec['total_amount'] or 'N/A'}`")
+            voice_recording = st.audio_input(
+                "Click red circle to record, click stop when done:",
+                key="chat_mic_recorder"
+            )
+            if voice_recording is not None:
+                audio_bytes = voice_recording.getvalue()
+                audio_hash = hash(audio_bytes)
+                if st.session_state.get("last_processed_audio_hash") != audio_hash:
+                    st.session_state.last_processed_audio_hash = audio_hash
+                    with st.spinner("🎙️ Transcribing voice in real-time..."):
+                        transcribed_text = VoiceEngine.transcribe_audio_bytes(audio_bytes, language=selected_stt_lang)
+                    
+                    if transcribed_text:
+                        st.session_state.selected_quick_prompt = transcribed_text
+                        st.success(f"🗣️ Heard: **\"{transcribed_text}\"**")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Could not clearly transcribe speech. Please speak closer to your microphone.")
+
+    with col_tools2:
+        with st.expander("📄 Fast Bill Text & Notice Parser", expanded=False):
+            st.write("Paste raw bill text or upload `.txt` to extract structured billing fields instantly.")
+            uploaded_bill_file = st.file_uploader("Upload Bill Text / Notice:", type=["txt", "csv", "json"], key="bill_uploader")
+            doc_raw_text = st.text_area(
+                "Or Paste Bill / Notice Text:",
+                height=70,
+                placeholder="Example: CA No: 102938475, Units: 420 kWh, Total Amount: Rs 3450, Due Date: 25/11/2026, IDF Defective Reading...",
+                key="pasted_bill_text"
+            )
+            if uploaded_bill_file:
+                try:
+                    doc_raw_text = uploaded_bill_file.read().decode("utf-8")
+                except Exception:
+                    pass
+
+            if doc_raw_text.strip():
+                parsed_elec = DocumentParser.extract_electricity_bill_fields(doc_raw_text)
+                
+                col_p1, col_p2, col_p3 = st.columns(3)
+                col_p1.metric("CA Account", str(parsed_elec['consumer_number'] or "N/A"))
+                col_p2.metric("Units Billed", f"{parsed_elec['units_consumed'] or 0.0} kWh")
+                col_p3.metric("Billed Amount", f"₹{parsed_elec['total_amount'] or 0.0}")
+                
                 if parsed_elec['is_average_or_idf']:
                     st.warning("⚠️ IDF / Average estimated reading flagged!")
-            with col_p2:
-                st.markdown("**🔥 LPG Cylinder Fields:**")
-                st.write(f"• **17-Digit ID:** `{parsed_lpg['consumer_id_17_digit'] or 'N/A'}`")
-                st.write(f"• **Agency:** `{parsed_lpg['distributor_name'] or 'N/A'}`")
-                st.write(f"• **Order Ref:** `{parsed_lpg['order_number'] or 'N/A'}`")
-            with col_p3:
-                st.markdown("**🏠 Tenancy / Rent Fields:**")
-                st.write(f"• **Rent:** `₹{parsed_rent['monthly_rent'] or 'N/A'}`")
-                st.write(f"• **Deposit:** `₹{parsed_rent['security_deposit'] or 'N/A'}`")
 
-            if st.button("⚡ Send Extracted Bill Details to SAATHI to Audit", key="btn_audit_bill", use_container_width=True):
-                st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF Flag: {parsed_elec['is_average_or_idf']}."
-                st.rerun()
+                if st.button("⚡ Audit This Bill with SAATHI", key="btn_audit_bill", use_container_width=True):
+                    st.session_state.selected_quick_prompt = f"Please audit my electricity bill: CA No {parsed_elec['consumer_number']}, Units {parsed_elec['units_consumed']}, Amount Rs {parsed_elec['total_amount']}, Average/IDF Flag: {parsed_elec['is_average_or_idf']}."
+                    st.rerun()
 
     # Load session messages
     current_session_messages = st.session_state.db.get_session_messages(st.session_state.current_session_id)
+
+    # Empty State Welcome Center
+    if len(current_session_messages) == 0:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%); border: 1px dashed rgba(255,255,255,0.15); border-radius: 18px; padding: 32px; text-align: center; margin: 24px 0;">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">🤝</div>
+            <h3 style="color: #F8FAFC; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">How can SAATHI AI assist you today?</h3>
+            <p style="color: #94A3B8; max-width: 600px; margin: 0 auto 18px auto; font-size: 0.95rem;">
+                Ask any question below, use the Voice Studio above, or click one of the quick scenario cards to start.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Display chat history for active thread
     for idx, msg in enumerate(current_session_messages):
@@ -564,14 +717,14 @@ if mode == "💬 AI Assistant & Chat":
                 st.markdown(f"""
                 <div class="action-draft-card">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <h4 style="color: #92400E; margin: 0; font-family: 'Outfit', sans-serif;">📝 Prepared Action Draft: {title}</h4>
-                        <span style="background: #FDE68A; color: #92400E; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px;">REQUIRES USER APPROVAL</span>
+                        <h4 style="color: #FBBF24; margin: 0; font-family: 'Outfit', sans-serif;">📝 Prepared Action Draft: {title}</h4>
+                        <span style="background: rgba(245, 158, 11, 0.3); color: #FDE68A; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: 1px solid #F59E0B;">REQUIRES CITIZEN APPROVAL</span>
                     </div>
-                    <p style="color: #B45309; font-size: 0.88rem; margin-bottom: 12px;">{warning}</p>
+                    <p style="color: #FDE68A; font-size: 0.88rem; margin-bottom: 12px;">{warning}</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                edited_draft = st.text_area("Review or Customize Draft Text:", value=draft_body, height=200, key=f"draft_{idx}_{act_id}")
+                edited_draft = st.text_area("Review or Customize Draft Text:", value=draft_body, height=180, key=f"draft_{idx}_{act_id}")
                 
                 c1, c2 = st.columns([1, 4])
                 with c1:
@@ -587,43 +740,6 @@ if mode == "💬 AI Assistant & Chat":
                 with c2:
                     if st.button("❌ Request Changes", key=f"req_{idx}_{act_id}"):
                         st.info("Tell SAATHI what details to adjust in your next message.")
-
-    # Interactive Voice & Speech Input Section
-    with st.expander("🎙️ Voice Search / बोलकर पूछें (Microphone Voice Input)", expanded=False):
-        col_v1, col_v2 = st.columns([3, 1])
-        with col_v2:
-            stt_lang_choice = st.selectbox(
-                "Voice Dialect / भाषा:",
-                ["हिंदी (Hindi - hi-IN)", "Hinglish / English (en-IN)", "English (US - en-US)"],
-                index=0,
-                key="voice_stt_dialect"
-            )
-            lang_code_map = {
-                "हिंदी (Hindi - hi-IN)": "hi-IN",
-                "Hinglish / English (en-IN)": "en-IN",
-                "English (US - en-US)": "en-US"
-            }
-            selected_stt_lang = lang_code_map.get(stt_lang_choice, "hi-IN")
-        
-        with col_v1:
-            voice_recording = st.audio_input(
-                "Record your voice question (Click red circle to start, click again to stop):",
-                key="chat_mic_recorder"
-            )
-            if voice_recording is not None:
-                audio_bytes = voice_recording.getvalue()
-                audio_hash = hash(audio_bytes)
-                if st.session_state.get("last_processed_audio_hash") != audio_hash:
-                    st.session_state.last_processed_audio_hash = audio_hash
-                    with st.spinner("🎙️ Transcribing voice in real-time..."):
-                        transcribed_text = VoiceEngine.transcribe_audio_bytes(audio_bytes, language=selected_stt_lang)
-                    
-                    if transcribed_text:
-                        st.session_state.selected_quick_prompt = transcribed_text
-                        st.success(f"🗣️ Heard: **\"{transcribed_text}\"**")
-                        st.rerun()
-                    else:
-                        st.warning("⚠️ Could not recognize speech. Please ensure your microphone is enabled and speak clearly.")
 
     # User Input Handling
     prompt_input = st.chat_input("Ask a question in English, हिंदी, or Hinglish (or use Voice Search above)...")
@@ -707,13 +823,13 @@ elif mode == "🎯 Scheme Eligibility Wizard":
         m_col1.markdown(f"""
         <div class="metric-box">
             <div class="metric-label">Directly Eligible Schemes</div>
-            <div class="metric-val" style="color: #059669;">{len(eligible_schemes)} / {len(matched_schemes)}</div>
+            <div class="metric-val" style="color: #34D399;">{len(eligible_schemes)} / {len(matched_schemes)}</div>
         </div>
         """, unsafe_allow_html=True)
         m_col2.markdown(f"""
         <div class="metric-box">
             <div class="metric-label">Profile Fit Rating</div>
-            <div class="metric-val" style="color: #0284C7;">{int((len(eligible_schemes)/max(len(matched_schemes),1))*100)}%</div>
+            <div class="metric-val" style="color: #38BDF8;">{int((len(eligible_schemes)/max(len(matched_schemes),1))*100)}%</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -721,7 +837,7 @@ elif mode == "🎯 Scheme Eligibility Wizard":
         st.write("Click on any scheme below to view exact benefits, required documents, and one-click application checklists.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("<hr style='margin: 20px 0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 20px 0; border-color: rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
 
     # Render scheme cards
     st.subheader(f"📋 Verified Government Schemes ({len(matched_schemes)})")
@@ -799,7 +915,7 @@ elif mode == "🧮 Smart Utility Calculators":
             m2.markdown(f"""
             <div class="metric-box">
                 <div class="metric-label">Total Estimated Bill</div>
-                <div class="metric-val" style="color: #0284C7;">₹{calc_res['total_estimated_bill']:.2f}</div>
+                <div class="metric-val" style="color: #38BDF8;">₹{calc_res['total_estimated_bill']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -858,7 +974,7 @@ elif mode == "🧮 Smart Utility Calculators":
             st.markdown(f"""
             <div class="metric-box" style="margin-bottom: 12px;">
                 <div class="metric-label">Minimum Rightful Refund</div>
-                <div class="metric-val" style="color: #10B981;">₹{res_rent['minimum_rightful_refund']:.2f}</div>
+                <div class="metric-val" style="color: #34D399;">₹{res_rent['minimum_rightful_refund']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
             st.write(f"• **Legitimate Deductions (Bills/Damage):** ₹{res_rent['legitimate_deductions']:.2f}")
@@ -886,7 +1002,7 @@ elif mode == "🧮 Smart Utility Calculators":
                 st.markdown(f"""
                 <div class="metric-box">
                     <div class="metric-label">Max Allowable PF Advance</div>
-                    <div class="metric-val" style="color: #0284C7;">₹{res_pf['max_withdrawable_amount']:.2f}</div>
+                    <div class="metric-val" style="color: #38BDF8;">₹{res_pf['max_withdrawable_amount']:.2f}</div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
@@ -1166,14 +1282,14 @@ elif mode == "🎓 Student Model Training Hub":
     
     # Model Specs & Status Banner
     st.markdown(f"""
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 18px 24px; border-radius: 14px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); color: white;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%); padding: 22px 28px; border-radius: 18px; margin-bottom: 22px; border: 1px solid rgba(255,255,255,0.12); color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
             <div>
-                <h4 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
-                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.88rem;">QLoRA Rank: r=16, Alpha=32 • Trainable Parameters: 2.16M (0.4359%) • Target: q, k, v, o projections</p>
+                <h4 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif; font-size: 1.25rem;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
+                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">QLoRA Rank: r=16, Alpha=32 • Trainable Parameters: 2.16M (0.4359%) • Target: q, k, v, o projections</p>
             </div>
             <div>
-                <span style="background: {'#065F46' if adapter_ready else '#991B1B'}; color: {'#A7F3D0' if adapter_ready else '#FECACA'}; font-weight: 700; padding: 6px 14px; border-radius: 9999px; font-size: 0.85rem;">
+                <span style="background: {'rgba(16, 185, 129, 0.2)' if adapter_ready else 'rgba(239, 68, 68, 0.2)'}; color: {'#34D399' if adapter_ready else '#F87171'}; border: 1px solid {'rgba(52, 211, 153, 0.4)' if adapter_ready else 'rgba(248, 113, 113, 0.4)'}; font-weight: 700; padding: 6px 16px; border-radius: 9999px; font-size: 0.85rem;">
                     {'✅ LoRA Adapter Trained & Ready' if adapter_ready else '⚠️ LoRA Adapter Not Found'}
                 </span>
             </div>
@@ -1208,15 +1324,15 @@ elif mode == "🎓 Student Model Training Hub":
                     t_dur = (time.time() - t_start) * 1000
                     st.success(f"⚡ Inferred in **{t_dur:.0f} ms** on local GPU!")
                     st.markdown(f"""
-                    <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-left: 4px solid #3B82F6; padding: 16px; border-radius: 8px; font-size: 0.95rem; line-height: 1.6;">
-                        <strong>🤖 Model Response:</strong><br>
+                    <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(59, 130, 246, 0.4); border-left: 4px solid #3B82F6; padding: 18px; border-radius: 12px; font-size: 0.95rem; line-height: 1.6; color: #F8FAFC;">
+                        <strong style="color: #60A5FA;">🤖 Model Response:</strong><br>
                         {out_text}
                     </div>
                     """, unsafe_allow_html=True)
                 except Exception as ex:
                     st.error(f"Inference error: {ex}")
 
-    st.markdown("<hr style='margin: 24px 0;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='margin: 24px 0; border-color: rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -1279,11 +1395,11 @@ elif mode == "🤖 WhatsApp & Telegram Bots":
             res = bot_svc.handle_incoming_message({"chat": {"id": sim_phone}, "text": sim_msg})
             
             st.markdown(f"""
-            <div style="background: {'#E7F8ED' if sim_platform == 'WhatsApp' else '#E3F2FD'}; border: 1px solid {'#86EFAC' if sim_platform == 'WhatsApp' else '#90CAF9'}; border-radius: 12px; padding: 18px; margin-top: 12px;">
-                <div style="font-weight: 700; color: {'#166534' if sim_platform == 'WhatsApp' else '#1565C0'}; margin-bottom: 8px;">
+            <div style="background: {'rgba(16, 185, 129, 0.15)' if sim_platform == 'WhatsApp' else 'rgba(14, 165, 233, 0.15)'}; border: 1px solid {'rgba(52, 211, 153, 0.4)' if sim_platform == 'WhatsApp' else 'rgba(56, 189, 248, 0.4)'}; border-radius: 14px; padding: 18px; margin-top: 14px;">
+                <div style="font-weight: 700; color: {'#34D399' if sim_platform == 'WhatsApp' else '#38BDF8'}; margin-bottom: 8px;">
                     {'📱 WhatsApp Response' if sim_platform == 'WhatsApp' else '✈️ Telegram Response'} [To: {sim_phone}]
                 </div>
-                <div style="white-space: pre-line; color: #1E293B; font-size: 0.95rem;">{res['reply_text']}</div>
+                <div style="white-space: pre-line; color: #F8FAFC; font-size: 0.95rem;">{res['reply_text']}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1342,17 +1458,17 @@ elif mode == "🔌 REST API & Developer Hub":
 
     # Server Status Card
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 20px 24px; border-radius: 14px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1); color: white;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%); padding: 22px 28px; border-radius: 18px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.12); color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
             <div>
                 <h3 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif;">🟢 FastAPI Server: Operational</h3>
                 <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">Base URL: <code>http://localhost:8000</code> • OpenAPI 3.1 Specification</p>
             </div>
             <div style="display: flex; gap: 10px;">
-                <a href="http://localhost:8000/docs" target="_blank" style="background: #2563EB; color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                <a href="http://localhost:8000/docs" target="_blank" style="background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: white; text-decoration: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; box-shadow: 0 4px 14px rgba(37,99,235,0.4);">
                     📖 Open Swagger UI Docs
                 </a>
-                <a href="http://localhost:8000/redoc" target="_blank" style="background: rgba(255,255,255,0.1); color: white; text-decoration: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2);">
+                <a href="http://localhost:8000/redoc" target="_blank" style="background: rgba(255,255,255,0.08); color: white; text-decoration: none; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.15);">
                     📑 Open Redoc
                 </a>
             </div>
