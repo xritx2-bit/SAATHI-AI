@@ -12,15 +12,23 @@ _LOCAL_TOKENIZER_INSTANCE = None
 
 class LocalFineTunedModel:
     @classmethod
-    def is_available(cls, adapter_dir: str = "training/saathi_lora_adapter") -> bool:
+    def get_adapter_path(cls) -> str:
+        for path in ["training/saathi_lora_model", "training/saathi_lora_adapter"]:
+            if os.path.exists(os.path.join(path, "adapter_model.safetensors")):
+                return path
+        return "training/saathi_lora_model"
+
+    @classmethod
+    def is_available(cls, adapter_dir: Optional[str] = None) -> bool:
         """Check if fine-tuned adapter weights exist."""
-        return os.path.exists(os.path.join(adapter_dir, "adapter_model.safetensors"))
+        path = adapter_dir or cls.get_adapter_path()
+        return os.path.exists(os.path.join(path, "adapter_model.safetensors"))
 
     @classmethod
     def load_model(
         cls,
         base_model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
-        adapter_dir: str = "training/saathi_lora_adapter"
+        adapter_dir: Optional[str] = None
     ):
         global _LOCAL_MODEL_INSTANCE, _LOCAL_TOKENIZER_INSTANCE
         if _LOCAL_MODEL_INSTANCE is not None and _LOCAL_TOKENIZER_INSTANCE is not None:
@@ -30,13 +38,14 @@ class LocalFineTunedModel:
         from transformers import AutoModelForCausalLM, AutoTokenizer
         from peft import PeftModel
 
-        tokenizer = AutoTokenizer.from_pretrained(adapter_dir)
+        path = adapter_dir or cls.get_adapter_path()
+        tokenizer = AutoTokenizer.from_pretrained(path)
         base_model = AutoModelForCausalLM.from_pretrained(
             base_model_name,
             torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
             device_map="auto"
         )
-        model = PeftModel.from_pretrained(base_model, adapter_dir)
+        model = PeftModel.from_pretrained(base_model, path)
         model.eval()
 
         _LOCAL_MODEL_INSTANCE = model

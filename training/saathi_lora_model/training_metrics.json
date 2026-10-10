@@ -1,0 +1,10 @@
+{
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "epochs": 15,
+  "lora_rank": 64,
+  "lora_alpha": 128,
+  "train_loss": 0.5482116852266093,
+  "training_duration_seconds": 285.16,
+  "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "timestamp": "2026-10-10T20:19:49Z"
+}
