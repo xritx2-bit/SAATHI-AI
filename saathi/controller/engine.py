@@ -24,7 +24,8 @@ class SaathiController:
         self,
         user_query: str,
         chat_history: Optional[List[Dict[str, Any]]] = None,
-        llm_provider: Optional[str] = None
+        llm_provider: Optional[str] = None,
+        **kwargs
     ) -> ControllerDecision:
         """
         Main Controller entry point. Evaluates user input through the multi-stage policy:
