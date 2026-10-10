@@ -482,7 +482,7 @@ st.sidebar.markdown("### 🧠 Active Intelligence Engine")
 adapter_exists = LocalFineTunedModel.is_available()
 engine_options = [
     "⚡ Deterministic Controller (100% Offline RAG)",
-    "🎯 Fine-Tuned Model (Qwen2.5-0.5B + LoRA on RTX 4050)" if adapter_exists else "🎯 Fine-Tuned Model (Adapter Pending)",
+    "🎯 Fine-Tuned Model (Qwen2.5-1.5B + Rank-64 LoRA on RTX 4050)" if adapter_exists else "🎯 Fine-Tuned Model (Adapter Pending)",
     "☁️ Cloud Hybrid (Gemini 2.5 API)"
 ]
 selected_engine = st.sidebar.selectbox("Inference Engine:", engine_options, index=1 if adapter_exists else 0)
@@ -1285,8 +1285,8 @@ elif mode == "🎓 Student Model Training Hub":
     <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%); padding: 22px 28px; border-radius: 18px; margin-bottom: 22px; border: 1px solid rgba(255,255,255,0.12); color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
             <div>
-                <h4 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif; font-size: 1.25rem;">🟢 Base Architecture: Qwen/Qwen2.5-0.5B-Instruct</h4>
-                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">QLoRA Rank: r=16, Alpha=32 • Trainable Parameters: 2.16M (0.4359%) • Target: q, k, v, o projections</p>
+                <h4 style="margin: 0; color: #F8FAFC; font-family: 'Outfit', sans-serif; font-size: 1.25rem;">🟢 Base Architecture: Qwen/Qwen2.5-1.5B-Instruct (1.54B Parameters)</h4>
+                <p style="margin: 4px 0 0 0; color: #94A3B8; font-size: 0.9rem;">Peak QLoRA: Rank r=64, Alpha=128 • Trainable Parameters: 73.85M (4.8%) • Targets: All 7 Projections (Attention + MLP)</p>
             </div>
             <div>
                 <span style="background: {'rgba(16, 185, 129, 0.2)' if adapter_ready else 'rgba(239, 68, 68, 0.2)'}; color: {'#34D399' if adapter_ready else '#F87171'}; border: 1px solid {'rgba(52, 211, 153, 0.4)' if adapter_ready else 'rgba(248, 113, 113, 0.4)'}; font-weight: 700; padding: 6px 16px; border-radius: 9999px; font-size: 0.85rem;">

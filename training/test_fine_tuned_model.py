@@ -61,27 +61,17 @@ def test_model(
         return
 
     try:
-        import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
-        from peft import PeftModel
-
-        print(f"Loading Base Model: {base_model_name}...")
-        tokenizer = AutoTokenizer.from_pretrained(adapter_dir)
-        base_model = AutoModelForCausalLM.from_pretrained(
-            base_model_name,
-            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
-            device_map="auto"
-        )
-        print(f"Applying Fine-Tuned LoRA Adapter from {adapter_dir}...")
-        model = PeftModel.from_pretrained(base_model, adapter_dir)
-
+        from saathi.llm.local_model import LocalFineTunedModel
+        print(f"Loading Fine-Tuned SAATHI Model from {adapter_dir}...")
+        
         print("\n✨ Ready! Running Test Inferences:\n")
         for tc in test_cases:
-            prompt = f"<|im_start|>system\nYou are SAATHI AI, a safe multilingual assistant for Indian daily life.<|im_end|>\n<|im_start|>user\n{tc['instruction']}\n\nContext/Input: {tc['input']}<|im_end|>\n<|im_start|>assistant\n"
-            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-            with torch.no_grad():
-                outputs = model.generate(**inputs, max_new_tokens=256, temperature=0.1, do_sample=False)
-            response = tokenizer.decode(outputs[0][len(inputs["input_ids"][0]):], skip_special_tokens=True)
+            response = LocalFineTunedModel.generate(
+                user_query=f"{tc['instruction']}\n\nContext/Input: {tc['input']}",
+                instruction="You are SAATHI AI, a safe multilingual assistant for Indian daily life.",
+                max_new_tokens=256,
+                temperature=0.1
+            )
             print(f"🎯 Test Case:  {tc['desc']}")
             print(f"❓ User Input: {tc['input']}")
             print(f"🤖 SAATHI AI: {response.strip()}\n" + "="*60 + "\n")
@@ -91,7 +81,8 @@ def test_model(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Test Fine-Tuned SAATHI Model")
-    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-0.5B-Instruct", help="Base HuggingFace model")
-    parser.add_argument("--adapter", type=str, default="training/saathi_lora_adapter", help="LoRA adapter directory")
+    parser.add_argument("--model", type=str, default="Qwen/Qwen2.5-1.5B-Instruct", help="Base HuggingFace model")
+    parser.add_argument("--adapter", type=str, default="training/saathi_lora_model", help="LoRA adapter directory")
     args = parser.parse_args()
     test_model(base_model_name=args.model, adapter_dir=args.adapter)
+
