@@ -1,10 +1,72 @@
 """
 SAATHI AI - Voice & Speech Accessibility Engine
-Provides multilingual Text-to-Speech (TTS) formatting and browser-native Speech-to-Text (STT) components.
+Provides multilingual Text-to-Speech (TTS) formatting and Speech-to-Text (STT) transcription.
 """
-from typing import Dict, Any
+import io
+import logging
+from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 class VoiceEngine:
+    @staticmethod
+    def transcribe_audio_bytes(audio_bytes: bytes, language: str = "hi-IN") -> str:
+        """
+        Transcribes microphone audio bytes into text using speech recognition.
+        Supports Hindi ('hi-IN'), Indian English ('en-IN'), and English ('en-US').
+        """
+        if not audio_bytes or len(audio_bytes) < 100:
+            return ""
+
+        try:
+            import speech_recognition as sr
+            r = sr.Recognizer()
+            
+            # Load audio buffer
+            with sr.AudioFile(io.BytesIO(audio_bytes)) as source:
+                # Adjust for ambient noise and record
+                r.adjust_for_ambient_noise(source, duration=0.2)
+                audio_data = r.record(source)
+
+            # Try primary requested language (e.g. 'hi-IN' or 'en-IN')
+            try:
+                text = r.recognize_google(audio_data, language=language)
+                if text and text.strip():
+                    return text.strip()
+            except Exception:
+                pass
+
+            # Fallback 1: Indian English (en-IN)
+            if language != "en-IN":
+                try:
+                    text = r.recognize_google(audio_data, language="en-IN")
+                    if text and text.strip():
+                        return text.strip()
+                except Exception:
+                    pass
+
+            # Fallback 2: Hindi (hi-IN)
+            if language != "hi-IN":
+                try:
+                    text = r.recognize_google(audio_data, language="hi-IN")
+                    if text and text.strip():
+                        return text.strip()
+                except Exception:
+                    pass
+
+            # Fallback 3: Standard English (en-US)
+            try:
+                text = r.recognize_google(audio_data, language="en-US")
+                if text and text.strip():
+                    return text.strip()
+            except Exception:
+                pass
+
+            return ""
+        except Exception as e:
+            logger.warning(f"Audio transcription error: {e}")
+            return ""
+
     @staticmethod
     def generate_browser_speech_html(text: str, language: str = "english", button_id: str = "btn_tts") -> str:
         """
@@ -36,68 +98,3 @@ class VoiceEngine:
         </div>
         """
         return html_code
-
-    @staticmethod
-    def generate_browser_mic_input_html() -> str:
-        """
-        Generates a speech recognition microphone widget that transcribes voice in real-time.
-        """
-        html_mic = """
-        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <button id="micBtn" onclick="toggleSpeechRec()" style="background: #EF4444; color: white; border: none; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">
-                    🎤
-                </button>
-                <span id="micStatus" style="font-size: 0.85rem; color: #475569; font-weight: 500;">Click mic to speak (हिंदी / English / Hinglish)</span>
-            </div>
-            <span style="font-size: 0.75rem; color: #94A3B8; font-weight: 600;">WEB SPEECH API</span>
-        </div>
-        <script>
-            var recognizing = false;
-            var recognition;
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = 'hi-IN'; // Indian multilingual recognition
-
-                recognition.onstart = function() {
-                    recognizing = true;
-                    document.getElementById('micStatus').innerHTML = '🔴 Listening... बोलिए...';
-                    document.getElementById('micBtn').style.background = '#10B981';
-                };
-
-                recognition.onresult = function(event) {
-                    var transcript = event.results[0][0].transcript;
-                    document.getElementById('micStatus').innerHTML = '✅ Heard: "' + transcript + '"';
-                    // Copy to clipboard for easy pasting into chat
-                    navigator.clipboard.writeText(transcript);
-                };
-
-                recognition.onerror = function(event) {
-                    document.getElementById('micStatus').innerHTML = '⚠️ Mic Error or Permission Denied';
-                    recognizing = false;
-                    document.getElementById('micBtn').style.background = '#EF4444';
-                };
-
-                recognition.onend = function() {
-                    recognizing = false;
-                    document.getElementById('micBtn').style.background = '#EF4444';
-                };
-            }
-
-            function toggleSpeechRec() {
-                if (recognition) {
-                    if (recognizing) {
-                        recognition.stop();
-                    } else {
-                        recognition.start();
-                    }
-                } else {
-                    alert('Speech Recognition is not supported by your browser. Please use Chrome or Edge.');
-                }
-            }
-        </script>
-        """
-        return html_mic

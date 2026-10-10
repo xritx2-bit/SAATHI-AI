@@ -18,3 +18,4 @@ accelerate
 datasets
 qrcode>=8.0.0
 easyocr>=1.7.0
+SpeechRecognition>=3.10.0

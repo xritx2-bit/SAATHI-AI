@@ -588,11 +588,45 @@ if mode == "💬 AI Assistant & Chat":
                     if st.button("❌ Request Changes", key=f"req_{idx}_{act_id}"):
                         st.info("Tell SAATHI what details to adjust in your next message.")
 
-    # Voice Speech Input Microphone Widget
-    st.html(VoiceEngine.generate_browser_mic_input_html())
+    # Interactive Voice & Speech Input Section
+    with st.expander("🎙️ Voice Search / बोलकर पूछें (Microphone Voice Input)", expanded=False):
+        col_v1, col_v2 = st.columns([3, 1])
+        with col_v2:
+            stt_lang_choice = st.selectbox(
+                "Voice Dialect / भाषा:",
+                ["हिंदी (Hindi - hi-IN)", "Hinglish / English (en-IN)", "English (US - en-US)"],
+                index=0,
+                key="voice_stt_dialect"
+            )
+            lang_code_map = {
+                "हिंदी (Hindi - hi-IN)": "hi-IN",
+                "Hinglish / English (en-IN)": "en-IN",
+                "English (US - en-US)": "en-US"
+            }
+            selected_stt_lang = lang_code_map.get(stt_lang_choice, "hi-IN")
+        
+        with col_v1:
+            voice_recording = st.audio_input(
+                "Record your voice question (Click red circle to start, click again to stop):",
+                key="chat_mic_recorder"
+            )
+            if voice_recording is not None:
+                audio_bytes = voice_recording.getvalue()
+                audio_hash = hash(audio_bytes)
+                if st.session_state.get("last_processed_audio_hash") != audio_hash:
+                    st.session_state.last_processed_audio_hash = audio_hash
+                    with st.spinner("🎙️ Transcribing voice in real-time..."):
+                        transcribed_text = VoiceEngine.transcribe_audio_bytes(audio_bytes, language=selected_stt_lang)
+                    
+                    if transcribed_text:
+                        st.session_state.selected_quick_prompt = transcribed_text
+                        st.success(f"🗣️ Heard: **\"{transcribed_text}\"**")
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ Could not recognize speech. Please ensure your microphone is enabled and speak clearly.")
 
     # User Input Handling
-    prompt_input = st.chat_input("Ask a question in English, हिंदी, or Hinglish (or click mic to speak)...")
+    prompt_input = st.chat_input("Ask a question in English, हिंदी, or Hinglish (or use Voice Search above)...")
     
     if "selected_quick_prompt" in st.session_state and st.session_state.selected_quick_prompt:
         prompt_input = st.session_state.selected_quick_prompt
