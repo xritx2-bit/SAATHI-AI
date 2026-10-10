@@ -31,7 +31,7 @@ class ProposedActionResponse(BaseModel):
     title: str
     requires_approval: bool
     draft_content: str
-    warning_or_disclaimer: str
+    warning_or_disclaimer: Optional[str] = None
 
 class QueryResponse(BaseModel):
     decision: str = Field(..., description="Policy decision: DIRECT_ANSWER, RETRIEVE_AND_ANSWER, CLARIFY, PREPARE_ACTION, ESCALATE")

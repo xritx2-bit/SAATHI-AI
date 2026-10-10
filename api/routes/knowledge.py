@@ -59,7 +59,7 @@ async def retrieve_evidence(req: RetrieveRequest, deps=Depends(get_store_and_ret
             "source": r.chunk.source_url_or_file,
             "authority_level": r.chunk.authority_level,
             "relevance_score": round(r.relevance_score, 4),
-            "match_reasons": r.match_reasons
+            "matched_snippet": r.matched_snippet
         })
 
     return RetrieveResponse(

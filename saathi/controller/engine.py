@@ -31,6 +31,16 @@ class SaathiController:
         1. Context Enrichment -> 2. Safety Gate -> 3. Language Routing -> 4. Intent Check -> 5. Retrieval -> 6. Action Drafting
         """
         active_llm = LLMClient(provider=llm_provider) if llm_provider else self.llm
+
+        if not user_query or not user_query.strip():
+            return ControllerDecision(
+                decision=DecisionType.DIRECT_ANSWER,
+                reasoning="Empty query provided.",
+                confidence=1.0,
+                detected_language="english",
+                response_text="Namaste! I am SAATHI AI. Please type your question about bills, government schemes, consumer complaints, or rental rules."
+            )
+
         # 0. Context enrichment from previous conversation turns
         if chat_history:
             user_query = ConversationContextManager.enrich_query_with_context(user_query, chat_history)

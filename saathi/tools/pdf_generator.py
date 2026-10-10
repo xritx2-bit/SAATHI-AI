@@ -24,20 +24,31 @@ def _setup_pdf_fonts(pdf: FPDF) -> Tuple[str, bool]:
     has_dejavu = os.path.exists(dejavu_reg) and os.path.exists(dejavu_bold)
     has_noto_dev = os.path.exists(noto_dev_reg) and os.path.exists(noto_dev_bold)
 
+    primary_font = "Helvetica"
+    is_unicode = False
+    fallback_list = []
+
     if has_dejavu:
         pdf.add_font("DejaVu", "", dejavu_reg)
         pdf.add_font("DejaVu", "B", dejavu_bold)
-        fallback_list = ["DejaVu"]
+        fallback_list.append("DejaVu")
+        primary_font = "DejaVu"
+        is_unicode = True
 
-        if has_noto_dev:
-            pdf.add_font("NotoDevanagari", "", noto_dev_reg)
-            pdf.add_font("NotoDevanagari", "B", noto_dev_bold)
-            fallback_list.insert(0, "NotoDevanagari")
+    if has_noto_dev:
+        pdf.add_font("NotoDevanagari", "", noto_dev_reg)
+        pdf.add_font("NotoDevanagari", "B", noto_dev_bold)
+        fallback_list.insert(0, "NotoDevanagari")
+        if not is_unicode:
+            primary_font = "NotoDevanagari"
+        is_unicode = True
 
-        try:
-            pdf.set_fallback_fonts(fallback_list)
-        except Exception:
-            pass
+    if is_unicode:
+        if fallback_list:
+            try:
+                pdf.set_fallback_fonts(fallback_list)
+            except Exception:
+                pass
 
         # Enable text shaping for Indic complex scripts / conjuncts
         try:
@@ -45,7 +56,7 @@ def _setup_pdf_fonts(pdf: FPDF) -> Tuple[str, bool]:
         except Exception:
             pass
 
-        return "DejaVu", True
+        return primary_font, True
 
     return "Helvetica", False
 

@@ -140,9 +140,11 @@ class ChatHistoryManager:
         msg_id = f"msg_{uuid.uuid4().hex[:12]}"
         
         # Serialize Pydantic objects or dicts
-        dec_str = json.dumps(decision.model_dump() if hasattr(decision, "model_dump") else decision) if decision else None
-        cit_str = json.dumps(citations) if citations else None
-        act_str = json.dumps(action.model_dump() if hasattr(action, "model_dump") else action) if action else None
+        dec_dict = decision.model_dump(mode="json") if hasattr(decision, "model_dump") else decision
+        dec_str = json.dumps(dec_dict, ensure_ascii=False) if decision else None
+        cit_str = json.dumps(citations, ensure_ascii=False) if citations else None
+        act_dict = action.model_dump(mode="json") if hasattr(action, "model_dump") else action
+        act_str = json.dumps(act_dict, ensure_ascii=False) if action else None
 
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
