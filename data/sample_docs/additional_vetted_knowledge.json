@@ -70,5 +70,32 @@
     "authority_level": "official_government",
     "last_updated": "2026-06-30",
     "metadata": {"category": "citizen_rights", "topic": "rti"}
+  },
+  {
+    "id": "voter_01",
+    "title": "Voter ID (EPIC): New Voter Registration & Online Correction Forms",
+    "content": "The Election Commission of India (ECI) provides citizen services on voters.eci.gov.in and Voter Helpline App (Helpline: 1950): 1) Form 6: Application for New Voter Registration (Indian citizens turning 18+). 2) Form 8: Correction of entries in existing electoral roll (Name, Photo, Address change, Shifting of residence, Mobile number linking). 3) Download e-EPIC: Digital PDF voter card with QR code can be downloaded by linking mobile number with EPIC. Processing timeline is typically 15-30 days by the Electoral Registration Officer (ERO) / Booth Level Officer (BLO).",
+    "source_url_or_file": "Election Commission of India (voters.eci.gov.in / 1950)",
+    "authority_level": "official_government",
+    "last_updated": "2026-09-01",
+    "metadata": {"category": "citizen_rights", "topic": "voter_id_epic"}
+  },
+  {
+    "id": "aadhaar_01",
+    "title": "UIDAI Aadhaar: Demographic Update, Address Change & Biometrics",
+    "content": "Under UIDAI regulations (uidai.gov.in / Toll-Free 1947): 1) Address Update: Can be done completely online via myAadhaar portal (myaadhaar.uidai.gov.in) with valid Proof of Address (Electricity bill, Rent agreement, Bank statement) or Head of Family (HoF) consent. Fee: Rs 50. 2) Mobile Number & Email Linkage: Requires biometric verification at an Aadhaar Seva Kendra / Post Office (cannot be done online without OTP). Fee: Rs 50. 3) Mandatory Biometric Update for Children: Free at age 5 and age 15. 4) Document Update: Free periodically on myAadhaar to keep demographic proof active.",
+    "source_url_or_file": "Unique Identification Authority of India (uidai.gov.in / 1947)",
+    "authority_level": "official_government",
+    "last_updated": "2026-08-15",
+    "metadata": {"category": "identity", "topic": "aadhaar_update"}
+  },
+  {
+    "id": "jan_aushadhi_01",
+    "title": "PM Jan Aushadhi Scheme (PMBJP): Affordable Generic Medicines",
+    "content": "Pradhan Mantri Bhartiya Janaushadhi Pariyojana (PMBJP) provides high-quality generic medicines, surgical items, and sanitary pads at 50% to 90% cheaper prices compared to branded market medicines. All medicines sold at Jan Aushadhi Kendras are tested at NABL-accredited laboratories for WHO-GMP quality compliance. To find nearby kendras and check medicine salt price comparisons, citizens can use the 'Jan Aushadhi Sugam' mobile app or visit janaushadhi.gov.in (National Helpline: 1800-180-8080).",
+    "source_url_or_file": "Pharmaceuticals & Medical Devices Bureau of India (PMBI - janaushadhi.gov.in)",
+    "authority_level": "official_government",
+    "last_updated": "2026-07-20",
+    "metadata": {"category": "healthcare", "topic": "jan_aushadhi"}
   }
 ]

@@ -17,10 +17,12 @@ from saathi.knowledge.doc_parser import DocumentParser
 from saathi.models import DecisionType
 from saathi.tools.calculators import UtilityCalculators
 from saathi.tools.letter_exporter import LetterExporter
+from saathi.tools.pdf_generator import SaathiPDFGenerator
 from saathi.voice.speech import VoiceEngine
 from saathi.db.chat_history import ChatHistoryManager
 from saathi.auth.firebase_auth import FirebaseAuthService
 from saathi.llm.local_model import LocalFineTunedModel
+
 
 
 # Streamlit Page Config
@@ -550,6 +552,30 @@ elif mode == "🧮 Smart Utility Calculators":
                     st.write(f"- {s}")
             if calc_res["warning"]:
                 st.warning(calc_res["warning"])
+
+            # Generate Tariff Audit PDF
+            audit_pdf_bytes = SaathiPDFGenerator.generate_bill_audit_pdf({
+                "inputs": {
+                    "Units Consumed (kWh)": f"{units} Units",
+                    "Sanctioned Load": f"{load} kW",
+                    "Reading Assessment": "IDF / Defective Reading Flagged" if is_idf else "Actual Meter Reading"
+                },
+                "breakdown": {
+                    "Energy Charges": f"Rs. {calc_res['energy_charge']:.2f}",
+                    "Fixed Demand Charges": f"Rs. {calc_res['fixed_charge']:.2f}",
+                    "State Electricity Duty (6%)": f"Rs. {calc_res['electricity_duty']:.2f}",
+                    "Total Estimated Bill": f"Rs. {calc_res['total_estimated_bill']:.2f}"
+                }
+            })
+
+            st.download_button(
+                label="📥 Download Tariff Audit Certificate (.pdf)",
+                data=audit_pdf_bytes,
+                file_name=f"Electricity_Tariff_Audit_{int(time.time())}.pdf",
+                mime="application/pdf",
+                use_container_width=True,
+                key="dl_elec_pdf"
+            )
         st.markdown('</div>', unsafe_allow_html=True)
 
     with calc_tab2:
@@ -669,22 +695,41 @@ elif mode == "📋 Citizen Action Vault":
                     reference_id=item["action_id"]
                 )
                 
-                c_d1, c_d2 = st.columns(2)
+                # Generate official PDF letter
+                pdf_letter_bytes = SaathiPDFGenerator.generate_complaint_letter_pdf(
+                    title=item["title"],
+                    content=item["final_content"],
+                    author_name=st.session_state.current_user.get("display_name", "Citizen Applicant"),
+                    ref_id=item["action_id"]
+                )
+
+                c_d1, c_d2, c_d3 = st.columns(3)
                 with c_d1:
                     st.download_button(
-                        label="📥 Download Clean Text (.txt)",
-                        data=item["final_content"],
-                        file_name=f"{item['title'].replace(' ', '_')}.txt",
-                        mime="text/plain",
-                        key=f"dl_txt_{item['action_id']}"
+                        label="📄 Download Official PDF (.pdf)",
+                        data=pdf_letter_bytes,
+                        file_name=f"{item['title'].replace(' ', '_')}.pdf",
+                        mime="application/pdf",
+                        key=f"dl_pdf_{item['action_id']}",
+                        use_container_width=True
                     )
                 with c_d2:
                     st.download_button(
-                        label="🖨️ Download Printable Letter (.html)",
+                        label="🖨️ Printable HTML (.html)",
                         data=html_letter,
                         file_name=f"{item['title'].replace(' ', '_')}.html",
                         mime="text/html",
-                        key=f"dl_html_{item['action_id']}"
+                        key=f"dl_html_{item['action_id']}",
+                        use_container_width=True
+                    )
+                with c_d3:
+                    st.download_button(
+                        label="📝 Clean Text (.txt)",
+                        data=item["final_content"],
+                        file_name=f"{item['title'].replace(' ', '_')}.txt",
+                        mime="text/plain",
+                        key=f"dl_txt_{item['action_id']}",
+                        use_container_width=True
                     )
 
 # ==========================================
