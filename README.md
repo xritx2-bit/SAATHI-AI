@@ -19,7 +19,7 @@ It empowers citizens across rural, semi-urban, and urban India to understand gov
 
 ---
 
-## 🏛️ Core Constitutional & Legal Grounding (Samvidhan)
+##  Core Constitutional & Legal Grounding (Samvidhan)
 
 SAATHI AI is deeply grounded in the **Constitution of India** and statutory enactments:
 
@@ -35,40 +35,6 @@ SAATHI AI is deeply grounded in the **Constitution of India** and statutory enac
 
 ---
 
-##  System Architecture
-
-```mermaid
-flowchart TD
-    Citizen([ Indian Citizen / User]) --> Channel{Access Channel}
-    
-    Channel -->|Web Portal| UI[ Streamlit Glassmorphism Web App]
-    Channel -->|WhatsApp| WA[ Meta WhatsApp Cloud Webhook]
-    Channel -->|Telegram| TG Telegram Bot Integration]
-    Channel -->|API| API FastAPI REST Server]
-
-    UI & WA & TG & API --> Guardrails Constitutional Safety Guardrails}
-
-    Guardrails -->|Emergency / Crisis| Emergency Escalation: 112 / 108 / 1930 / Tele-MANAS 14416]
-    Guardrails -->|Illegal Redline| Redline Strict Statutory Refusal & Legal Alternative]
-    Guardrails -->|Safe Query| Controller Evidence-Gated Decision Controller]
-
-    Controller --> LocalLLM Fine-Tuned QLoRA LLM<br>Qwen 2.5 1.5B with &lt;think&gt; CoT]
-    Controller --> RAG Hybrid RAG: BM25 + MiniLM Dense Vectors]
-    Controller --> Voice Indic Voice Engine: Whisper STT + gTTS]
-    Controller --> Vision Computer Vision: EasyOCR Bill Scanner]
-    Controller --> Tools Smart Utility Calculators & PDF Exporter]
-
-    LocalLLM & RAG & Tools --> DecisionType{Decision Policy}
-    
-    DecisionType -->|Direct / Info| Answer[ Verified Citizen Advice + Citations]
-    DecisionType -->|Action Needed| ActionGate[ Draft Grievance Notice / Checklist]
-
-    ActionGate --> HumanGate{ Human Approval Gate}
-    HumanGate -->|Approved| Approved[ Printable QR-Verified PDF Letterhead]
-    HumanGate -->|Rejected| Edit[ User Edits / Modifies]
-```
-
----
 
 ##  Key Features & Capabilities
 
