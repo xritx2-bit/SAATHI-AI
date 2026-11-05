@@ -1,4 +1,4 @@
-# SAATHI AI (साथी) 🤝🇮🇳
+# SAATHI AI (साथी) 
 ### *Next-Generation Evidence-Gated Public Assistance & Constitutional Decision Intelligence*
 
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python&logoColor=white)](https://python.org)
@@ -11,7 +11,7 @@
 
 ---
 
-## 🌟 Executive Overview
+##  Executive Overview
 
 **SAATHI AI (साथी)** is an evidence-gated, safe, and multilingual public governance AI system designed to bridge the digital and bureaucratic divide for **500M+ Indian citizens**. 
 
@@ -35,68 +35,68 @@ SAATHI AI is deeply grounded in the **Constitution of India** and statutory enac
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```mermaid
 flowchart TD
-    Citizen([👤 Indian Citizen / User]) --> Channel{Access Channel}
+    Citizen([ Indian Citizen / User]) --> Channel{Access Channel}
     
-    Channel -->|Web Portal| UI[🌐 Streamlit Glassmorphism Web App]
-    Channel -->|WhatsApp| WA[📱 Meta WhatsApp Cloud Webhook]
-    Channel -->|Telegram| TG[✈️ Telegram Bot Integration]
-    Channel -->|API| API[⚡ FastAPI REST Server]
+    Channel -->|Web Portal| UI[ Streamlit Glassmorphism Web App]
+    Channel -->|WhatsApp| WA[ Meta WhatsApp Cloud Webhook]
+    Channel -->|Telegram| TG Telegram Bot Integration]
+    Channel -->|API| API FastAPI REST Server]
 
-    UI & WA & TG & API --> Guardrails{🛡️ Constitutional Safety Guardrails}
+    UI & WA & TG & API --> Guardrails Constitutional Safety Guardrails}
 
-    Guardrails -->|Emergency / Crisis| Emergency[🚨 Escalation: 112 / 108 / 1930 / Tele-MANAS 14416]
-    Guardrails -->|Illegal Redline| Redline[⚠️ Strict Statutory Refusal & Legal Alternative]
-    Guardrails -->|Safe Query| Controller[🧠 Evidence-Gated Decision Controller]
+    Guardrails -->|Emergency / Crisis| Emergency Escalation: 112 / 108 / 1930 / Tele-MANAS 14416]
+    Guardrails -->|Illegal Redline| Redline Strict Statutory Refusal & Legal Alternative]
+    Guardrails -->|Safe Query| Controller Evidence-Gated Decision Controller]
 
-    Controller --> LocalLLM[💻 Fine-Tuned QLoRA LLM<br>Qwen 2.5 1.5B with &lt;think&gt; CoT]
-    Controller --> RAG[📚 Hybrid RAG: BM25 + MiniLM Dense Vectors]
-    Controller --> Voice[🗣️ Indic Voice Engine: Whisper STT + gTTS]
-    Controller --> Vision[📷 Computer Vision: EasyOCR Bill Scanner]
-    Controller --> Tools[🧮 Smart Utility Calculators & PDF Exporter]
+    Controller --> LocalLLM Fine-Tuned QLoRA LLM<br>Qwen 2.5 1.5B with &lt;think&gt; CoT]
+    Controller --> RAG Hybrid RAG: BM25 + MiniLM Dense Vectors]
+    Controller --> Voice Indic Voice Engine: Whisper STT + gTTS]
+    Controller --> Vision Computer Vision: EasyOCR Bill Scanner]
+    Controller --> Tools Smart Utility Calculators & PDF Exporter]
 
     LocalLLM & RAG & Tools --> DecisionType{Decision Policy}
     
-    DecisionType -->|Direct / Info| Answer[✅ Verified Citizen Advice + Citations]
-    DecisionType -->|Action Needed| ActionGate[📋 Draft Grievance Notice / Checklist]
+    DecisionType -->|Direct / Info| Answer[ Verified Citizen Advice + Citations]
+    DecisionType -->|Action Needed| ActionGate[ Draft Grievance Notice / Checklist]
 
-    ActionGate --> HumanGate{🔐 Human Approval Gate}
-    HumanGate -->|Approved| Approved[🖨️ Printable QR-Verified PDF Letterhead]
-    HumanGate -->|Rejected| Edit[✏️ User Edits / Modifies]
+    ActionGate --> HumanGate{ Human Approval Gate}
+    HumanGate -->|Approved| Approved[ Printable QR-Verified PDF Letterhead]
+    HumanGate -->|Rejected| Edit[ User Edits / Modifies]
 ```
 
 ---
 
-## 🚀 Key Features & Capabilities
+##  Key Features & Capabilities
 
-### 1. 🧠 Local QLoRA Fine-Tuned LLM (`<think>` Chain-of-Thought)
+### 1.  Local QLoRA Fine-Tuned LLM (`<think>` Chain-of-Thought)
 - **Base Architecture:** `Qwen/Qwen2.5-1.5B-Instruct` (1.54B parameters, 28 transformer layers, 1536 hidden dimension).
 - **4-Bit NF4 Quantization:** Quantized with `bitsandbytes`, enabling local inference and training in **< 4.0 GB VRAM** on an **NVIDIA RTX 4050 Laptop GPU**.
 - **LoRA Configuration:** **Rank $r=64$**, **$\alpha=128$**, targeting all 7 linear projections (`q, k, v, o, gate, up, down_proj`).
 - **Chain-of-Thought Deliberation:** Internal `<think> ... </think>` reasoning tags ensure the model checks statutory safety rules and legal articles before composing its citizen response.
 
-### 2. 🛡️ Constitutional Safety Guardrails & Redlines
+### 2.  Constitutional Safety Guardrails & Redlines
 - **Zero-Tolerance Redlines:** Immediately blocks and redirects illegal inquiries (meter bypass, fake caste/income certificates, cyber cracking, bribery).
 - **Emergency Crisis Escalation:** Instant routing for medical emergencies (**112/108**), mental health crises (**Tele-MANAS 14416**), and financial cyber fraud within the golden hour (**1930**).
 - **Human-in-the-Loop Permission Gate:** Employs `DECISION: PREPARE_ACTION` — the AI prepares drafts and checklists but **never** files applications or pays money autonomously.
 
-### 3. 🗣️ Multilingual Indic Voice Engine
+### 3.  Multilingual Indic Voice Engine
 - Supports **8+ Indic Languages**: Hindi (हिन्दी), Marathi (मराठी), Bengali (বাংলা), Tamil (தமிழ்), Telugu (తెలుగు), Gujarati (ગુજરાતી), Kannada (ಕನ್ನಡ), Hinglish, and English.
 - **Audio Ingestion:** Accepts voice notes in `.wav`, `.mp3`, `.ogg`, `.m4a`, `.webm`.
 - **Speech Stack:** OpenAI Whisper STT + Google SpeechRecognition + gTTS / pyttsx3 speech synthesis.
 
-### 4. 📱 WhatsApp Cloud API & Telegram Bots
+### 4.  WhatsApp Cloud API & Telegram Bots
 - **WhatsApp Webhook:** Implements Meta WhatsApp Cloud API v19.0 webhook handling in `integrations/whatsapp_webhook.py`.
 - **Zero-Friction Testing:** Includes an interactive simulator in Tab 9 of the Web App and a 60-second Telegram Bot (`integrations/telegram_bot.py`).
 
-### 5. 📷 Computer Vision & OCR Bill Parser
+### 5.  Computer Vision & OCR Bill Parser
 - Uses `EasyOCR` + `Pillow` to scan photos of DISCOM electricity bills and Khatoni land records.
 - Automatically extracts Consumer Account Numbers (CA No.), Sanctioned Load (kW), Meter Status, and Billed Units.
 
-### 6. 🧮 Smart Utility Calculators & PDF Exporter
+### 6.  Smart Utility Calculators & PDF Exporter
 - **Electricity Slab Calculator:** Calculates tiered consumption math, PPAC surcharges, and state subsidies (e.g. DERC 200-unit subsidy).
 - **Model Tenancy Security Deposit Checker:** Flags any landlord deposit demand exceeding 2 months' rent as unlawful.
 - **EPFO Form 31 Advance Tool:** Computes non-refundable PF advance eligibility.
@@ -104,7 +104,7 @@ flowchart TD
 
 ---
 
-## 📊 Automated Research Benchmark Results
+##  Automated Research Benchmark Results
 
 Evaluated using the automated 16-point evaluation benchmark suite (`training/evaluate_benchmark.py`):
 
@@ -137,7 +137,7 @@ Evaluated using the automated 16-point evaluation benchmark suite (`training/eva
 
 ---
 
-## 📂 Project Directory Structure
+##  Project Directory Structure
 
 ```
 SAATHI-AI/
@@ -177,7 +177,7 @@ SAATHI-AI/
 
 ---
 
-## ⚡ Quick Start Guide
+##  Quick Start Guide
 
 ### 1. Clone & Set Up Environment
 ```bash
@@ -231,7 +231,7 @@ A comprehensive 11-chapter printable reference guide is included:
 
 ---
 
-## 📜 License & Citation
+##  License & Citation
 
 This project is licensed under the **MIT License**.
 
